@@ -44,6 +44,17 @@ export const constantRouterMap = [
     }]
   },
   {
+    path: '/client',
+    component: Layout,
+    redirect: '/client/index',
+    children: [{
+      path: 'index',
+      component: _import('callCenter/client/index'),
+      name: 'client',
+      meta: { title: 'client', icon: 'people'}
+    }]
+  },
+  {
     path: '/documentation',
     component: Layout,
     redirect: '/documentation/index',
@@ -81,7 +92,8 @@ export const asyncRouterMap = [
         title: 'pagePermission',
         roles: ['admin'] // or you can only set roles in sub nav
       }
-    }, {
+    },
+    {
       path: 'directive',
       component: _import('permission/directive'),
       name: 'directivePermission',

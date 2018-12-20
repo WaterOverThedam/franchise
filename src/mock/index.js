@@ -20,10 +20,10 @@ Mock.mock(/\/article\/pv/, 'get', articleAPI.getPv)
 Mock.mock(/\/article\/create/, 'post', articleAPI.createArticle)
 Mock.mock(/\/article\/update/, 'post', articleAPI.updateArticle)
 
-// 搜索相关
-Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
+// // 搜索相关
+// Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
 
-// 账单相关
-Mock.mock(/\/transaction\/list/, 'get', transactionAPI.getList)
+// // 账单相关
+// Mock.mock(/\/transaction\/list/, 'get', transactionAPI.getList)
 
 export default Mock

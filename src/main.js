@@ -16,7 +16,8 @@ import './icons' // icon
 import './errorLog'// error log
 import './permission' // permission control
 import './mock' // simulation data
-
+import  minxin from './mixins' // permission control
+import  {myFun}  from './plugins'// simulation data
 import * as filters from './filters' // global filters
 
 Vue.use(Element, {
@@ -24,6 +25,9 @@ Vue.use(Element, {
   i18n: (key, value) => i18n.t(key, value)
 })
 
+//全局minxin及函数
+Vue.mixin(minxin);
+Vue.use(myFun);
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
