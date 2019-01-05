@@ -10,7 +10,7 @@ const user = {
     name: '',
     avatar: '',
     introduction: '',
-    account:{id:279833,acl:"系统管理员",gyms:"上海徐家汇中心,总部,上海环球中心"},
+    account:{self:{"name":"系统管理员","id":279833},acl:"系统管理员",gyms:[{name:"上海徐家汇中心",code:"500005",id:1},{"name":"总部","code":"500004","id":3},{name:"上海环球中心",code:"500012",id:2}]},
     roles: [],
     setting: {
       articlePlatform: []

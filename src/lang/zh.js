@@ -1,7 +1,7 @@
 export default {
   route: {
     user:"用户",
-    client:"客户",
+    clients:"客户",
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',
@@ -88,12 +88,13 @@ export default {
     imageUploadTips: '由于我在使用时它只有vue@1版本，而且和mockjs不兼容，所以自己改造了一下，如果大家要使用的话，优先还是使用官方版本。'
   },
   table: {
+    industry: '行业',
     dynamicTips1: '固定表头, 按照表头顺序排序',
     dynamicTips2: '不固定表头, 按照点击顺序排序',
     dragTips1: '默认顺序',
     dragTips2: '拖拽后顺序',
     title: '标题',
-    importance: '重要性',
+    importance: '质量评估',
     type: '类型',
     remark: '点评',
     search: '搜索',
@@ -111,7 +112,23 @@ export default {
     draft: '草稿',
     delete: '删除',
     cancel: '取 消',
-    confirm: '确 定'
+    confirm: '确 定',
+    client: '家长',
+    sex:'性别',
+    phone: '手机号',
+    kid: '孩子',
+    email: '邮箱',
+    addr: '家庭住址',
+    memo: '沟通记录',
+    label: '标签',
+    ls_selected: '跟进人',
+    group_selected : '分组',
+    channel : '渠道',
+    gym_selected: '中心',
+    cust_name: '创建人',
+    create_time: '创建时间',
+    edit_name: '修改人',
+    update_time: '最近修改时间'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

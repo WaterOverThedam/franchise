@@ -1,5 +1,6 @@
 export default {
   route: {
+    clients: 'Clients',
     dashboard: 'Dashboard',
     introduction: 'Introduction',
     documentation: 'Documentation',
@@ -109,7 +110,24 @@ export default {
     draft: 'Draft',
     delete: 'Delete',
     cancel: 'Cancel',
-    confirm: 'Confirm'
+    confirm: 'Confirm',
+    client: 'Parent',
+    sex:'Sex',
+    phone: 'Phone',
+    kid: 'Kid',
+    email: 'Email',
+    addr: 'Address',
+    memo: 'Memo',
+    label: 'Label',
+    ls_selected: 'Follower',
+    group_selected : 'Group',
+    gym_selected: 'Gym',
+    channel : 'Chanel',
+    gym: 'Gym',
+    cust_name: 'Creator',
+    create_time: 'CreateTime',
+    edit_name: 'Editor',
+    update_time: 'updateTime'
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',

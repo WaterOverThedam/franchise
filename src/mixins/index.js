@@ -14,14 +14,20 @@ export default{
     computed: {
         ...mapGetters([
           'account'
-        ])
+        ]),
+        isAdmin(){
+            return this.account&&this.account.acl
+                   &&(this.account.acl.indexOf("中心运营总监")!=-1
+                   ||this.account.acl.indexOf("系统管理员")!=-1
+                   ||this.account.acl.indexOf("顾问")!=-1
+                   ||this.account.acl.indexOf("市场")!=-1
+                   );
+        }
     },
     methods:{
         getLs(gym){
-            let sql = "select ls.crm_qm username,ls.id from crm_yh_238592_view ls where crm_yhname not like '50%' and crm_yiqiyong=1 join (@tbl_gym)g on charindex(g.name,crmzdy_81611236)>0 order by username for json auto";
-            gym = gym||this.gym.name||this.account.gyms;
-            gym = gym.split(";") ;
-            sql = sql.replace("@tbl_gym",gym);
+            let sql = "select ls.crm_qm username,ls.id from crm_yh_238592_view ls where crm_yhname not like '50%' and crm_yiqiyong=1 and charindex('@tbl_gym',crmzdy_81611236)>0 order by username for json auto";
+            sql = sql.replace("@tbl_gym",gym&&gym.name);
 
             let params={sql1:sql},self=this;
             request({
@@ -33,13 +39,12 @@ export default{
               })
         },
         getGym(){
-            var sql="select (select crm_name name,crmzdy_80620116 code,id from crm_zdytable_238592_23594_238592_view @gym_where order by name for json auto);";
-            if(this.account.acl=='系统管理员'){
-                sql=sql.replace('@gym_where','');
-            }else{
-                sql=sql.replace('@gym_where',"where charindex(crm_name,'@gyms')>0");
-                sql=sql.replace('@gyms',this.account.gyms);
+            if(this.account.acl!=='系统管理员'){
+               this.gyms = response.data;
+               this.gym  = this.gyms&&this.gyms[0];
+               return;
             }
+            let sql="select (select crm_name name,crmzdy_80620116 code,id from crm_zdytable_238592_23594_238592_view  order by name for json auto);";
             let params={sql1:sql},self=this;
             request({
                 baseURL: requestUrl,
@@ -47,7 +52,8 @@ export default{
                 params
               }).then(response => { 
                 self.gyms = response.data;
-                self.gyms&&self.gyms[0];
+                self.gym  = self.gyms&&self.gyms[0];
+                self.gym&&self.getLs(self.gym);
               })
         },
         obj2Arr(obj){
@@ -70,7 +76,7 @@ export default{
         json(obj_str,key){
           if (typeof obj_str=="object") return obj_str[key];
           if (typeof obj_str!="string") return "invalid string"
-          if(this.trim(obj_str)!=""){
+          if(obj_str.indexOf("}")!=-1){
             var obj=JSON.parse(obj_str);
             if(obj){
                 return obj[key];
@@ -79,9 +85,9 @@ export default{
           return '';
         },
         urlView:function(row){
-            if(row.idjt&&row.idjt!="undefined"&&row.idjt.trim()!=""){
-		    var u= "<a title='点击进入家庭' href='https://bbk.800app.com/index.jsp?mlist=1&mfs1=crm_sj&mid=@idjt&menu=3' target='_blank'>@phone</a>";
-            return u.replace('@idjt',row.idjt).replace('@phone',row.phone);
+            if(row.idjt&&row.idjt!="undefined"&&row.idjt!=""&&row.idjt!=0){
+                var u= "<a title='点击进入家庭' style='text-decoration:underline' href='https://bbk.800app.com/index.jsp?mlist=1&mfs1=crm_sj&mid=@idjt&menu=3' target='_blank'>@phone</a>";
+                return u.replace('@idjt',row.idjt).replace('@phone',row.phone);
             }
             return row.phone;
         },

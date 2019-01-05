@@ -51,7 +51,7 @@ export const constantRouterMap = [
       path: 'index',
       component: _import('callCenter/client/index'),
       name: 'client',
-      meta: { title: 'client', icon: 'people'}
+      meta: { title: 'clients', icon: 'peoples'}
     }]
   },
   {
