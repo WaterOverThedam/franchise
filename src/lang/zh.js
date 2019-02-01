@@ -61,6 +61,11 @@ export default {
     screenfull: '全屏',
     theme: '换肤'
   },
+  dialog:{
+    edit:'编辑',
+    update:'编辑',
+    create:'新建'
+  },
   login: {
     title: '系统登录',
     logIn: '登录',
@@ -88,7 +93,7 @@ export default {
     imageUploadTips: '由于我在使用时它只有vue@1版本，而且和mockjs不兼容，所以自己改造了一下，如果大家要使用的话，优先还是使用官方版本。'
   },
   table: {
-    industry: '行业',
+    industry: '所在行业',
     dynamicTips1: '固定表头, 按照表头顺序排序',
     dynamicTips2: '不固定表头, 按照点击顺序排序',
     dragTips1: '默认顺序',

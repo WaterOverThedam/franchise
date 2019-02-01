@@ -56,13 +56,27 @@ export default{
                 self.gym&&self.getLs(self.gym);
               })
         },
+        get_tag(gym){
+            console.log(gym);
+            let sql="select isnull(crmzdy_82069676,quot;[]quot;) tag from crm_zdytable_238592_26580_238592_view yzx where crmzdy_82004682='@gymcode'";
+            let params={sql1:sql},self=this;
+            request({
+                baseURL: requestUrl,
+                method: 'post',
+                params
+            }).then(response => { 
+                self.labelGrps = response.data;
+                console.log(self.labelGrps)
+                if(self.tag_select){
+                    self.tag_select();
+                }
+            })
+        },
         obj2Arr(obj){
             var arr = []
             for (let i in obj) {
                 arr.push("'"+obj[i]+"' "+i)
             }
-            //console.log(arr.length)
-            //if(arr.length==15) console.log(JSON.stringify(obj))
             return arr;
         },
         json2Sql(data){
@@ -75,7 +89,10 @@ export default{
         },
         json(obj_str,key){
           if (typeof obj_str=="object") return obj_str[key];
-          if (typeof obj_str!="string") return "invalid string"
+          if (typeof obj_str!="string") { 
+             if(obj_str!="") console.error(obj_str);;
+             return "";
+          }
           if(obj_str.indexOf("}")!=-1){
             var obj=JSON.parse(obj_str);
             if(obj){
