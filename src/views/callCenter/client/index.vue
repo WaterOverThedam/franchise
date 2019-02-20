@@ -290,7 +290,7 @@
 </template>
 
 <script>
-import { fetchList, fetchChannel, createClient,updateClient} from '@/api/client'
+import { fetchList, fetchChannel, createClient,updateClient,syncOASIS} from '@/api/client'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 
@@ -600,11 +600,22 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
+      var sql="select ec.id,isnull(crmzdy_82068889,'') client,isnull(ec.crm_name,'') phone,isnull(crmzdy_82068921,'') kid,isnull(crmzdy_82068893,'') group_selected,isnull(crmzdy_82068894,'') sex,isnull(crmzdy_82068917,'') channel,isnull(crmzdy_82068918,'') industry,isnull(crmzdy_82068895,'') addr,isnull(crmzdy_82068919,'') label,convert(varchar(10),ec.create_time,120)create_time,isnull(ec.crmzdy_85213104,'') ls_selected,isnull(crmzdy_82326474,'') gym_selected,isnull(crmzdy_82068892,'') email,ec.edit_name,ec.cust_name,ec.update_time,crmzdy_82068891 birth,crmzdy_82068896 memo from crm_zdytable_238592_27128_238592_view ec where id="+row.id;
+      if(status=="published"){
+         syncOASIS(sql).then(response => {
+            if(response.data&&response.data.errcode==0){
+                this.$message({
+                    message: '同步成功',
+                    type: 'success'
+                })
+            }else{
+                this.$message({
+                    message: '同步失败',
+                    type: 'error'
+                })
+            }
+         });
+      }
     },
     handleReady(temp){
       console.log(this.temp.gym_selected);

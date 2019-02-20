@@ -55,6 +55,15 @@ export function createClient(cxt){
   })
 }
 
+
+export function syncOASIS(sql){
+  return request({
+    baseURL: ecUrl,
+    method: 'get',
+    params: {sql1:sql}
+  })
+}
+
 export function updateClient(cxt){
   var sql = sql_client_upt;
   sql=sql.replace("@form",JSON.stringify(cxt.temp))
