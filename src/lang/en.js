@@ -1,6 +1,7 @@
 export default {
   route: {
     clients: 'Clients',
+    settings: 'Setting',
     dashboard: 'Dashboard',
     introduction: 'Introduction',
     documentation: 'Documentation',

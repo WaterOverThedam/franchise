@@ -114,7 +114,16 @@ export const asyncRouterMap = [
       meta: { title: 'icons', icon: 'icon', noCache: true }
     }]
   },
-
+  {
+    path: '/settings',
+    component: Layout,
+    children: [{
+      path: 'index',
+      component: _import('settings/index'),
+      name: 'setting',
+      meta: { title: 'settings', icon: 'setting', roles: ['admin']}
+    }]
+  },
   {
     path: '/components',
     component: Layout,

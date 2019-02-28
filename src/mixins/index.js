@@ -56,19 +56,22 @@ export default{
                 self.gym&&self.getLs(self.gym);
               })
         },
-        get_tag(gym){
-            console.log(gym);
-            let sql="select isnull(crmzdy_82069676,quot;[]quot;) tag from crm_zdytable_238592_26580_238592_view yzx where crmzdy_82004682='@gymcode'";
+        get_tag(gymcode){
+            gymcode=gymcode||(this.account&&this.account.gyms&&this.account.gyms[0]&&this.account.gyms[0].code);
+            let sql="select 0 errcode,'ok'errmsg,isnull((select JSON_query(isnull(nullif(crmzdy_82069676,''),quot;[]quot;)) tag from crm_zdytable_238592_26580_238592_view yzx where crmzdy_82004682='@gymcode'),'[]')arr,'@sql'sql for json path,without_array_wrapper";
+            sql = sql.replace("@gymcode",gymcode);
             let params={sql1:sql},self=this;
             request({
                 baseURL: requestUrl,
                 method: 'post',
                 params
             }).then(response => { 
-                self.labelGrps = response.data;
-                console.log(self.labelGrps)
-                if(self.tag_select){
-                    self.tag_select();
+                if(response.data&&response.data.errcode==0){
+                    self.labelGrps = response.data.arr;
+                    console.log(self.labelGrps)
+                    if(self.tag_select){
+                        self.tag_select();
+                    }
                 }
             })
         },
@@ -88,6 +91,8 @@ export default{
              return  sql.slice(0,-10);
         },
         json(obj_str,key){
+            console.error(obj_str)
+          if(!key) return obj_str&&JSON.stringify(this.obj2Arr);
           if (typeof obj_str=="object") return obj_str[key];
           if (typeof obj_str!="string") { 
              if(obj_str!="") console.error(obj_str);;

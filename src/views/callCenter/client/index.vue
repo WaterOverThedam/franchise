@@ -36,7 +36,7 @@
     <el-table :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
       style="width: 100%">
       <el-table-column fixed type="index" width="50"></el-table-column>
-      <el-table-column fixed width="80px" align="center" prop="client" :label="$t('table.client')"></el-table-column>
+      <el-table-column fixed width="100px" align="center" prop="client" :label="$t('table.client')"></el-table-column>
       <el-table-column fixed width="150px" align="center" :label="$t('table.phone')">
         <template slot-scope="scope" @click="calling">
             <span v-html="urlView(scope.row)"></span>
@@ -71,7 +71,7 @@
                <span>{{json(scope.row.ls_selected,'username')}}</span>
            </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" :label="$t('table.gym_selected')">
+      <el-table-column width="120px" align="center" :label="$t('table.gym_selected')">
             <template slot-scope="scope">
                <span>{{json(scope.row.gym_selected,'name')}}</span>
            </template>

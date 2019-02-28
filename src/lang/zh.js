@@ -2,6 +2,7 @@ export default {
   route: {
     user:"用户",
     clients:"客户",
+    settings: '设置',
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',
