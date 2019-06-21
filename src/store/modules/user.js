@@ -10,7 +10,7 @@ const user = {
     name: '',
     avatar: '',
     introduction: '',
-    account:{self:{"name":"系统管理员","id":279833},acl:"系统管理员",gyms:[{name:"上海徐家汇中心",code:"500004",id:1},{"name":"总部","code":"500004","id":3},{name:"上海环球中心",code:"500012",id:2}]},
+    account:null,
     roles: [],
     setting: {
       articlePlatform: []
@@ -68,7 +68,7 @@ const user = {
             reject('error')
           }
           const data = response.data
-
+            console.log(data)
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)
           } else {

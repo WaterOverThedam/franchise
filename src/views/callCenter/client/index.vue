@@ -1,14 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-select class="filter-item" style="margin-left: 20px;" v-model="gym" value-key="code" clearable filterable @change="getLs()" placeholder="中心">
-          <el-option v-for="item in gyms" :key="item.code" :label="item.name" :value="item">
-          </el-option>
-      </el-select>
       <div class="filter-item">
       <el-date-picker  
           v-model="listQuery.dtzx"
-          :picker-options="pickerOptions2"
+          :picker-options="rangeTimeOps"
           value-format="yyyy-MM-dd HH:mm:ss"
           range-separator="-"
           type="daterange"
@@ -19,42 +15,51 @@
       </el-date-picker>
       </div>
       <div class='filter-item search-input'>
-        <el-input :placeholder="search.placeholder" v-model="search.Value" clearable></el-input>
+        <el-input :placeholder="search.placeholder" v-model="search.value" clearable></el-input>
       </div>
-      <div v-waves class="filter-item"  @click="handleSearch">
+      <!-- <div v-waves class="filter-item"  @click="handleSearch">
         <el-dropdown  @command="handleMu" split-button type="primary">
           <i class="el-icon-search"></i>&nbsp;{{$t('table.search')}}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
-            </el-dropdown-menu>
+            </el-dropdown-menu> 
         </el-dropdown>
-      </div>
-      <el-button  class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
-      <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button>
+      </div> -->
+      <el-button  class="filter-item" style="margin-left: 10px;" @click="handleSearch" type="primary" icon="el-icon-search">{{$t('table.search')}}</el-button>
+      <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </div>
 
-    <el-table :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table @sort-change="sortChange"	:key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
       style="width: 100%">
       <el-table-column fixed type="index" width="50"></el-table-column>
-      <el-table-column fixed width="100px" align="center" prop="client" :label="$t('table.client')"></el-table-column>
+      <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
+      <el-table-column fixed width="80px" align="center" prop="name" :label="$t('table.name')"></el-table-column>
       <el-table-column fixed width="150px" align="center" :label="$t('table.phone')">
         <template slot-scope="scope" @click="calling">
-            <span v-html="urlView(scope.row)"></span>
-            <el-tooltip  effect="dark" content="与客户电话沟通" placement="bottom" >
+            <span v-html="scope.row.phone"></span>
+            <!-- <el-tooltip  effect="dark" content="与客户电话沟通" placement="bottom" > -->
              <span class="icon-item"><i class="el-icon-mobile-phone"></i></span>
-            </el-tooltip>
+            <!-- </el-tooltip> -->
         </template>
       </el-table-column>
-      <el-table-column fixed="left" width="80px" align="center" :label="$t('table.memo')">
+      <el-table-column  width="160px" align="left" prop="email" :label="$t('table.email')"></el-table-column>
+      <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
+      <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
+      <el-table-column  sortable :label="$t('table.status')">
+        <template slot-scope="scope" @click="calling">
+            <span v-text="handleStatus[scope.row.status]"></span>
+        </template>
+      </el-table-column>
+      <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
         <template slot-scope="scope" @click="noting">
-          <el-tooltip  effect="light" content="点击进入沟通记录界面" placement="top" >
+          <el-tooltip  effect="light" content="点击记录沟通信息" placement="left" >
             <div class="icon-item" @click="show_memo(scope.row.memo)">
               <svg-icon icon-class="form" />
             </div>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column fixed="left" width="60px" :label="$t('table.label')">
+      <!-- <el-table-column fixed="left" width="60px" :label="$t('table.label')">
         <template slot-scope="scope">
           <el-tooltip  effect="light" :content="scope.row.label||'标签待定'" placement="right" >
             <div class="icon-item" @click="show_label(scope.row)">
@@ -62,107 +67,46 @@
             </div>
           </el-tooltip>
         </template>
-      </el-table-column>
-      <el-table-column  width="210px" align="left" prop="email" :label="$t('table.email')"></el-table-column>
-      <el-table-column  width="220px" align="left" prop="industry" :label="$t('table.industry')"></el-table-column>
-      <el-table-column  width="220px" align="left" prop="addr" :label="$t('table.addr')"></el-table-column>
-      <el-table-column width="100px" align="center" :label="$t('table.ls_selected')">
-            <template slot-scope="scope">
-               <span>{{json(scope.row.ls_selected,'username')}}</span>
-           </template>
-      </el-table-column>
-      <el-table-column width="120px" align="center" :label="$t('table.gym_selected')">
-            <template slot-scope="scope">
-               <span>{{json(scope.row.gym_selected,'name')}}</span>
-           </template>
-      </el-table-column>
-      <el-table-column width="100px" align="center" prop="cust_name" :label="$t('table.cust_name')"></el-table-column>
-      <el-table-column width="100px" align="center" prop="create_time" :label="$t('table.create_time')"></el-table-column>
-      <el-table-column width="100px" align="center" prop="edit_name" :label="$t('table.edit_name')"></el-table-column>
-      <el-table-column width="150px" align="center" :label="$t('table.update_time')">
+      </el-table-column> -->
+
+      <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <span>{{scope.row.update_time | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-tooltip  effect="dark" content="发布成功后会导入OASIS" placement="bottom" >
-             <el-button :disabled="isPublish(scope.row.idjt)" size="mini" type="success" @click="handleModifyStatus(scope.row,'published')">{{$t('table.publish')}}</el-button>
-          </el-tooltip>
-          <el-button size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{$t('table.delete')}}</el-button>
+          <el-col :span=12>
+             <el-button type="default" size="small" @click="handleFollow(scope.row)">{{$t('table.follow')}}</el-button>
+          </el-col>
+					<el-col :span=4 v-show="isAdmin">
+             <el-button type="danger" size="small" @click="handleModifyStatus(scope.row,'deleted')">{{$t('table.delete')}}</el-button>
+          </el-col>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total">
       </el-pagination>
     </div>
 
-    <el-dialog :title="$t('dialog.'+dialogStatus)" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 600px; margin-left:50px;'>
-          <el-form-item :label="$t('table.client')"  prop="client" class="w-50">
-            <el-input  v-model="temp.client" size="100"></el-input>
-          </el-form-item>  
-          <el-form-item :label="$t('table.sex')"  prop="sex" class="w-50">
-            <el-radio-group v-model="temp.sex">
-            <el-radio label="男"></el-radio>
-            <el-radio label="女"></el-radio>
-            <el-radio label="未知"></el-radio>
-            </el-radio-group>
-          </el-form-item>
-      
-          <el-form-item :label="$t('table.phone')" prop="phone"  class="w-50">
-              <el-input  v-model="temp.phone" size="100"></el-input>
-          </el-form-item>
-
-          <el-form-item :label="$t('table.email')" prop="email" class="w-50">
-              <el-input  v-model="temp.email" size="100"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('table.kid')"  prop="kid" class="w-50">
-             <el-input   v-model="temp.kid" size="100"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('table.industry')"  prop="industry">
-             <el-col :span="14">
-               <el-input  v-model="temp.industry" ></el-input>
-             </el-col> 
-          </el-form-item>
-          <el-form-item :label="$t('table.addr')" prop="addr">
-             <el-col :span="14">
-               <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 4}"  v-model="temp.addr"></el-input>
-             </el-col>
-          </el-form-item>
-          <el-form-item :label="$t('table.channel')" prop="channel" class="w-50">
-              <el-select  v-model="temp.channel" value-key="id" filterable placeholder="请选择">
-                  <el-option v-for="c of channels" :key="c.id" :label="c.name" :value="c"></el-option>
-              </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('table.group_selected')"  prop="group_selected" class="w-50">
-              <el-select v-model="temp.group_selected" filterable placeholder="请选择">
-                <el-option v-for="(g,index) of clientlGrps" :key="index" :label="g.name" :value="g.name"></el-option>
-              </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('table.importance')">
-            <el-rate style="margin-top:8px;" v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max='4'></el-rate>
-          </el-form-item>
-          <el-form-item :label="$t('table.gym_selected')" prop="gym_selected" class="w-50">
-                <el-select class="filter-item"  v-model="temp.gym_selected" value-key="code" clearable filterable @change="getLs(gym)" placeholder="中心">
-                    <el-option v-for="item in gyms" :key="item.code" :label="item.name" :value="item">
-                    </el-option>
-                </el-select>
-          </el-form-item> 
-          <el-form-item :label="$t('table.ls_selected')" prop="ls_selected" class="w-50">
-                <el-select  value-key="id" :disabled="account.acl!='系统管理员'" v-model="temp.ls_selected" default-first-option filterable placeholder="请选择老师">
-                    <el-option v-for="item in tutors" :key="item.id" :label="item.username" :value="item">
-                    </el-option>
-                </el-select>
-          </el-form-item> 
+    <el-dialog :title="$t('dialog.setting')" :visible.sync="dialogFormVisible">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" >
+        <el-form-item label="当前跟进状态">
+          <el-radio-group v-model="temp.status">
+            <el-radio label="1">待处理</el-radio>
+            <el-radio label="2">处理中</el-radio>
+            <el-radio label="3">已完结</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="下次跟进时间">
+            <el-date-picker
+              v-model="temp.nextTime"
+              type="date"
+              placeholder="选择日期"
+              :picker-options="nexttimeOptions">
+            </el-date-picker>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
-        <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
+        <el-button type="primary" @click="updateData">{{$t('table.save')}}</el-button>
       </div>
     </el-dialog>
 
@@ -172,7 +116,7 @@
         <el-table-column prop="pv" label="Pv"> </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>
+        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.save')}}</el-button>
       </span>
     </el-dialog>
     <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
@@ -185,21 +129,17 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="标签设置" :visible.sync="dialogLabelVisiable">
+   <!--  <el-dialog title="标签设置" :visible.sync="dialogLabelVisiable">
       <el-row>
-        
             <el-card class="box-card">
- 
-  <div slot="header" class="clearfix">
+      <div slot="header" class="clearfix">
     <span>客户标签</span>
     <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
   </div>
   <div v-for="o in 4" :key="o" class="text item">
     {{'列表内容 ' + o }}
   </div>
- 
-
-              <!-- <div slot="header" class="clearfix">
+     <div slot="header" class="clearfix">
                 <span>客户标签</span>
                   <el-popover
                     placement="bottom"
@@ -221,14 +161,13 @@
                     </div>
                     <el-button slot="reference" style="float: right; padding: 3px 50px 3px 5px" type="text" @click="setTag()">添加</el-button>
                   </el-popover>
-              </div> -->
+              </div> 
             </el-card>
             <el-tag :key="id" v-for="(tag,id) in temp.Tags" closable :disable-transitions="false" @close="handleClose(id)">
                 {{tag.label}}
             </el-tag>
- 
       </el-row>
-    </el-dialog>
+    </el-dialog> -->
  
 
     <el-dialog title="高级筛选" :visible.sync="dialogAdvVisiable" width="60%">
@@ -263,7 +202,7 @@
                <template v-if="sift.item.type&&sift.item.type=='dt'">
                   <el-date-picker  width="50"
                       v-model="sift.value"
-                      :picker-options="pickerOptions2"
+                      :picker-options="rangeTimeOps"
                       value-format="yyyy-MM-dd HH:mm:ss"
                       range-separator="-"
                       type="daterange"
@@ -293,7 +232,7 @@
 import { fetchList, fetchChannel, createClient,updateClient,syncOASIS} from '@/api/client'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
-
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'clients',
@@ -319,6 +258,7 @@ export default {
       }  
     };
     return {
+       radio: '3',
       searchOpts:["高级搜索","标签搜索"],
       advSearchWhere:[],
       sifts:[{item:{},opr:undefined,value:undefined}],
@@ -350,7 +290,34 @@ export default {
         dtzx: undefined,
         sort: undefined
       },
-      pickerOptions2: {
+      nexttimeOptions:{
+          disabledDate(time) {
+            return time.getTime() < Date.now();
+          },
+          shortcuts: [{
+            text: '明天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24*1);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '后天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24*2);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '一周后',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            }
+          }]
+      },
+      rangeTimeOps: {
             shortcuts: [{
             text: '最近一个月',
             onClick(picker) {
@@ -400,13 +367,12 @@ export default {
           memo: undefined,
           email:undefined,
           phone:undefined,
-          addr:undefined,
           group_selected:undefined,
-          gym_selected:undefined,
-          ls_selected:undefined,
-          Tags:[],
+          status:undefined,
+          nextTime:undefined
       },
-      search:{placeholder:"搜索关键字:手机号/家长姓名",value:undefined},
+      search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
+      handleStatus:{"1":"待处理","2":"处理中","2":"已完成"},
       labelGrps:[],
       clientlGrps:[],
       channels:[],
@@ -465,30 +431,17 @@ export default {
       return calendarTypeKeyValue[type]
     }
   },
-  created() {
-    this.getGym();
-    this.getList();
-  },
   computed:{
-    Temp:function(){
-        var self=this;
-        var arr=self.labelGrps.map(function(o){
-          if(o.checked){
-            var tag =o.tags.find(function(t){
-                return t.iscolor;
-            })
-            if(tag){
-                return {"key":o.name,"label":tag.name}
-            }
-          }
-        })
-        return self.clearNullAr(arr);
-    },
-    searchWhere:function(){
-       return this.search.Value&&"phone+client like '%@s%'".replace("@s",this.search.Value.trim());
-    }
+    ...mapGetters([
+      'roles',
+      'isAdmin'
+    ])
   },
   methods: {
+    sortChange(param){
+        this.listQuery.sort=param.prop+" "+param.order.substr(0,3);
+        this.getList();
+    },
     tag_select(){
         if(!this.temp.Tags||this.temp.Tags.length==0) return;
         var arr_tags=[];
@@ -570,16 +523,21 @@ export default {
          this.dialogMemoVisiable=true;
     },
     noting(){
-       alert("I'm noting")
+         console.log("I'm noting")
     },
     calling(){
-         alert("I am calling!")
+         console.log("I am calling!")
     },
     getList() {
       this.listLoading = true
       fetchList(this).then(response => {
-        this.list = response.data.arr
-        this.total = response.data.total
+        if(response.data.code==0){
+           let res=response.data.data;
+           if(res.length>0){
+             this.list = res;
+             this.total = res&&res[0].total;
+           }
+        }
         this.listLoading = false
       })
     },
@@ -669,24 +627,14 @@ export default {
       })
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      if(/\{.+\}/.test(this.temp.ls_selected)) this.temp.ls_selected=JSON.parse(this.temp.ls_selected);
-      if(/\{.+\}/.test(this.temp.channel)) this.temp.channel=JSON.parse(this.temp.channel);
-      if(typeof this.temp.gym_selected =='string'){
-        if(/\{.+\}/.test(this.temp.gym_selected)) {
-          this.temp.gym_selected=JSON.parse(this.temp.gym_selected);
-        }else{
-          this.temp.gym_selected=this.gym;
-        }  
-      }
-      console.log(this.temp)
-      this.handleReady(this.temp);
-      //this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+         this.temp = Object.assign({}, row) // copy obj
+    },
+    handleFollow(row){
+         this.temp.id=row.id;
+         this.temp.status=row.status.toString();
+         this.temp.nextTime=row.nextTime;
+         console.log(this.temp)
+         this.dialogFormVisible=true;
     },
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
@@ -867,6 +815,8 @@ export default {
       }
   },
   mounted(){
+    this.getList();
+    console.log(this.roles)
   }
 }
 </script>
@@ -901,13 +851,9 @@ export default {
     border: 1px solid #dcdfe6;
     color: #606266;
   }
-  .box-card{
-    .w-50{
+  .box-card .w-50{
       width: 48%;
       display: inline-block;
-    }
-    
-    // width: 70%;
   }
   .card-right{
     height:100%;

@@ -79,6 +79,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/permission/index',
     alwaysShow: true, // will always show the root menu
+    meta: {roles: ['admin', 'editor']},
     meta: {
       title: 'permission',
       icon: 'lock',
@@ -98,7 +99,8 @@ export const asyncRouterMap = [
       component: _import('permission/directive'),
       name: 'directivePermission',
       meta: {
-        title: 'directivePermission'
+        title: 'directivePermission',
+        roles: ['admin']
         // if do not set roles, means: this page does not require permission
       }
     }]
@@ -107,6 +109,7 @@ export const asyncRouterMap = [
   {
     path: '/icon',
     component: Layout,
+    meta: {roles: ['admin']},
     children: [{
       path: 'index',
       component: _import('svg-icons/index'),
@@ -117,6 +120,8 @@ export const asyncRouterMap = [
   {
     path: '/settings',
     component: Layout,
+    alwaysShow: false,
+    meta: { roles: ['admin','tlgcadmin']},
     children: [{
       path: 'index',
       component: _import('settings/index'),
@@ -131,7 +136,8 @@ export const asyncRouterMap = [
     name: 'component-demo',
     meta: {
       title: 'components',
-      icon: 'component'
+      icon: 'component',
+      roles:['admin']
     },
     children: [
       { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},
@@ -157,7 +163,8 @@ export const asyncRouterMap = [
     name: 'charts',
     meta: {
       title: 'charts',
-      icon: 'chart'
+      icon: 'chart',
+      roles:['admin']
     },
     children: [
       { path: 'keyboard', component: _import('charts/keyboard'), name: 'keyboardChart', meta: { title: 'keyboardChart', noCache: true }},
@@ -173,7 +180,8 @@ export const asyncRouterMap = [
     name: 'example',
     meta: {
       title: 'example',
-      icon: 'example'
+      icon: 'example',
+      roles:['admin']
     },
     children: [
       {
@@ -205,7 +213,8 @@ export const asyncRouterMap = [
     name: 'form',
     meta: {
       title: 'form',
-      icon: 'form'
+      icon: 'form',
+      roles:['admin']
     },
     children: [
       { path: 'create-form', component: _import('form/create'), name: 'createForm', meta: { title: 'createForm', icon: 'table' }},
@@ -220,7 +229,8 @@ export const asyncRouterMap = [
     name: 'errorPages',
     meta: {
       title: 'errorPages',
-      icon: '404'
+      icon: '404',
+      roles:['admin']
     },
     children: [
       { path: '401', component: _import('errorPage/401'), name: 'page401', meta: { title: 'page401', noCache: true }},
@@ -231,6 +241,7 @@ export const asyncRouterMap = [
   {
     path: '/error-log',
     component: Layout,
+    meta: {roles:['admin']},
     redirect: 'noredirect',
     children: [{ path: 'log', component: _import('errorLog/index'), name: 'errorLog', meta: { title: 'errorLog', icon: 'bug' }}]
   },
@@ -242,7 +253,8 @@ export const asyncRouterMap = [
     name: 'excel',
     meta: {
       title: 'excel',
-      icon: 'excel'
+      icon: 'excel',
+      roles:['admin']
     },
     children: [
       { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel' }},
@@ -256,7 +268,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/zip/download',
     alwaysShow: true,
-    meta: { title: 'zip', icon: 'zip' },
+    meta: { title: 'zip', icon: 'zip',roles:['admin'] },
     children: [{ path: 'download', component: _import('zip/index'), name: 'exportZip', meta: { title: 'exportZip' }}]
   },
 
@@ -264,6 +276,7 @@ export const asyncRouterMap = [
     path: '/theme',
     component: Layout,
     redirect: 'noredirect',
+    meta:{roles:['admin']},
     children: [{ path: 'index', component: _import('theme/index'), name: 'theme', meta: { title: 'theme', icon: 'theme' }}]
   },
 
@@ -271,12 +284,14 @@ export const asyncRouterMap = [
     path: '/clipboard',
     component: Layout,
     redirect: 'noredirect',
+    meta:{roles:['admin']},
     children: [{ path: 'index', component: _import('clipboard/index'), name: 'clipboardDemo', meta: { title: 'clipboardDemo', icon: 'clipboard' }}]
   },
 
   {
     path: '/i18n',
     component: Layout,
+    meta:{roles:['admin']},
     children: [{ path: 'index', component: _import('i18n-demo/index'), name: 'i18n', meta: { title: 'i18n', icon: 'international' }}]
   },
 

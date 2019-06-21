@@ -7,6 +7,7 @@ const getters = {
   token: state => state.user.token,
   avatar: state => state.user.avatar,
   name: state => state.user.name,
+  isAdmin: state => state.user.roles.some(role => role.indexOf('admin') >= 0),
   account: state => state.user.account,
   introduction: state => state.user.introduction,
   status: state => state.user.status,

@@ -65,7 +65,8 @@ export default {
   dialog:{
     edit:'编辑',
     update:'编辑',
-    create:'新建'
+    create:'新建',
+    setting:'设置'
   },
   login: {
     title: '系统登录',
@@ -134,7 +135,15 @@ export default {
     cust_name: '创建人',
     create_time: '创建时间',
     edit_name: '修改人',
-    update_time: '最近修改时间'
+    update_time: '最近修改时间',
+    dt:'申请日期',
+    name:"申请人",
+    follower:"跟进人",
+    address:"申请区域",
+    mark:"标记",
+    cate:"分类",
+    follow:"跟进设置",
+    save:"保存"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

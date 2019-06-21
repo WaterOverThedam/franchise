@@ -128,7 +128,20 @@ export default {
     cust_name: 'Creator',
     create_time: 'CreateTime',
     edit_name: 'Editor',
-    update_time: 'updateTime'
+    update_time: 'updateTime',
+    dt:'ApplyDate',
+    name:"Applicant",
+    follower:"Follower",
+    address:"Area",
+    mark:"Mark",
+    cate:"Categary",
+    follow:"Follow"
+  },
+  dialog:{
+    edit:'Edit',
+    update:'Update',
+    create:'Create',
+    setting:'Setting'
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',
