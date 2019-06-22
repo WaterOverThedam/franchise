@@ -25,12 +25,21 @@
             </el-dropdown-menu> 
         </el-dropdown>
       </div> -->
-      <el-button  class="filter-item" style="margin-left: 10px;" @click="handleSearch" type="primary" icon="el-icon-search">{{$t('table.search')}}</el-button>
+      <el-button  class="filter-item" style="margin-left: 10px;" type="primary" @click="handleSearch" icon="el-icon-search">{{$t('table.search')}}</el-button>
+      <el-button v-if="isSuper" class="filter-item" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </div>
-
-    <el-table @sort-change="sortChange"	:key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <!-- <el-row>
+      <el-col :span="24"> </el-col>
+    </el-row> -->
+    <el-form>
+      <el-form-item label="筛选条件:">
+          <el-checkbox v-model="todayFollow">仅显示今天需要跟进的</el-checkbox>
+      </el-form-item>
+    </el-form>
+    <el-table ref="clientTable" @sort-change="sortChange"	@selection-change="handleSelectionChange" :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
       style="width: 100%">
+      <el-table-column v-if="selection.show" type="selection" width="55"></el-table-column>
       <el-table-column fixed type="index" width="50"></el-table-column>
       <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
       <el-table-column fixed width="80px" align="center" prop="name" :label="$t('table.name')"></el-table-column>
@@ -52,11 +61,13 @@
       </el-table-column>
       <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
       <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
-      <el-table-column  sortable :label="$t('table.status')">
+      <el-table-column  :label="$t('table.status')">
         <template slot-scope="scope" @click="calling">
             <span v-text="handleStatus[scope.row.status]"></span>
         </template>
       </el-table-column>
+      <el-table-column  width="95px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
+        
       <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
         <template slot-scope="scope" @click="noting">
           <el-tooltip  effect="light" content="点击记录沟通信息" placement="left" >
@@ -104,13 +115,14 @@
               v-model="temp.nextTime"
               type="date"
               placeholder="选择日期"
+              value-format="yyyy-MM-dd"
               :picker-options="nexttimeOptions">
             </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="updateData">{{$t('table.save')}}</el-button>
+        <el-button type="primary" @click="updateData(temp)">{{$t('table.save')}}</el-button>
       </div>
     </el-dialog>
 
@@ -233,7 +245,7 @@
 </template>
 
 <script>
-import { fetchList, fetchChannel, createClient,updateClient,syncOASIS} from '@/api/client'
+import { fetchList, updateFollow, deleteFranApp} from '@/api/client'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import { mapGetters } from 'vuex';
@@ -262,7 +274,6 @@ export default {
       }  
     };
     return {
-       radio: '3',
       searchOpts:["高级搜索","标签搜索"],
       advSearchWhere:[],
       sifts:[{item:{},opr:undefined,value:undefined}],
@@ -363,23 +374,17 @@ export default {
       temp: {
           id: undefined,
           importance: 1,
-          client: undefined,
-          kid:undefined,
           channel: undefined,
-          industry: undefined,
-          sex: undefined,
-          memo: undefined,
           email:undefined,
           phone:undefined,
-          group_selected:undefined,
           status:undefined,
           nextTime:undefined
       },
+      row_cur:undefined,
+      todayFollow:false,
+      selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
-      handleStatus:{"1":"待处理","2":"处理中","2":"已完成"},
-      labelGrps:[],
-      clientlGrps:[],
-      channels:[],
+      handleStatus:{"1":"待处理","2":"处理中","2":"已完结"},
       importanceOptions: [1, 2, 3,4],
       dialogFormVisible: false,
       dialogMemoVisiable: false,
@@ -438,7 +443,8 @@ export default {
   computed:{
     ...mapGetters([
       'roles',
-      'isAdmin'
+      'isAdmin',
+      'isSuper'
     ])
   },
   methods: {
@@ -462,30 +468,6 @@ export default {
               })
             }
         })
-    },
-    setTag(){
-        if(this.labelGrps.length>0) return;
-        this.$confirm('请先设置标签, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$router.push({path: '/setting'});
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已放弃'
-          });          
-        });
-    },
-    clearTag(){
-        this.lableVisible = false;
-    },
-    saveTage(){
-        //console.log("save",JSON.stringify(this.Temp))
-        //console.log("save",JSON.stringify(this.labelGrps))
-        this.temp.Tags = this.Temp;
-        this.lableVisible =false;
     },
     genenateSift:function(){
        var self=this;
@@ -520,9 +502,6 @@ export default {
           this.dialogAdvVisiable=true;
        }
     },
-    isPublish:function(idjt){
-        return !idjt==0;
-    },
     show_memo:function(memos){
          this.dialogMemoVisiable=true;
     },
@@ -534,6 +513,7 @@ export default {
     },
     getList() {
       this.listLoading = true
+      this.list =[];
       fetchList(this).then(response => {
         //前而request.js做了处理
         if(response.code==0){
@@ -541,7 +521,7 @@ export default {
            if(res.length>0){
              this.list = res;
              this.total = res&&res[0].total;
-             console.log(this.list)
+             //console.log(this.list)
            }
         }
         this.listLoading = false
@@ -598,13 +578,13 @@ export default {
       })
     },
     createData() {
+      let self=this;
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           createClient(this).then((res) => {
-            console.error(res);
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
+            self.list.unshift(this.temp)
+            self.dialogFormVisible = false
+            self.$notify({
               title: '成功',
               message: '创建成功',
               type: 'success',
@@ -621,52 +601,84 @@ export default {
          this.temp.id=row.id;
          this.temp.status=row.status.toString();
          this.temp.nextTime=row.nextTime;
-         console.log(this.temp)
          this.dialogFormVisible=true;
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          updateClient(this).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
-              }
-            }
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
+    updateData(data) {
+      updateFollow(data).then((res)=>{
+        if(res.code==0){
+          this.row_cur.status=row.status.valueOf();
+          this.row_cur.nextTime=row.nextTime;
+          this.$message({
+              showClose: true,
+              message: res.msg,
+              type: 'success'
+          });
+          this.dialogFormVisible=false;
         }
       })
     },
-    toDelete(row){
+    toDelete(){
+        let self=this;
+        if(!this.selection.ids.length||!this.selection.show){
+          self.$message({
+            type: 'info',
+            message: '请先选择需要删除的记录'
+          });     
+          this.selection.show=true;
+          this.selection.ids=[];
+          return;
+        }
         this.$confirm('是否确认删除?')
           .then(function() {
-              handleDelete(row.id);
-          })
-
+              self.handleDelete();
+          }).catch(action => {
+              if(action === 'cancel'){
+                  self.$message({
+                    type: 'info',
+                    message: "已取消操作"
+                  })
+              }
+              self.selection.show=false;
+              self.selection.ids=[];
+              this.$refs.clientTable.clearSelection();
+          }) 
     },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+    handleDelete() {
+      let self=this;
+      deleteFranApp(this).then(function(res){
+         if(res.code==0){
+            self.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            let indexes=self.selection.ids.map(function(id){
+                  return self.list.findIndex(function(l){
+                     return  l.id==id;
+                  })
+            })
+            //console.error(indexes)
+            indexes.forEach(function(i){
+                self.list.splice(i,1);
+            })
+            self.selection.ids=[];
+            self.selection.show=false;
+         }else{
+            self.$notify({
+              title: '错误',
+              message: res.msg+',删除失败',
+              type: 'error',
+              duration: 2000
+            })
+         }
       })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
     },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
+    handleSelectionChange(vals) {
+      var self=this;
+      self.selection.ids=[];
+      vals.forEach(function(v){
+          self.selection.ids.push(v.id);
       })
     },
     handleDownload() {

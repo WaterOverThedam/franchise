@@ -10,7 +10,7 @@ axios.defaults.retryDelay = 1000;
 const service = axios.create({
   baseURL: process.env.BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 10000 ,// request timeout
+  timeout: 7000 ,// request timeout
   retry:4,
   retryDelay: 1000
 })
@@ -27,7 +27,7 @@ service.interceptors.request.use(
       if(config.params){
           config.params.token=store.getters.token;
           config.params.username=store.getters.name;
-          config.params.userid=store.getters.userid;
+          if(!store.getters.isAdmin)config.params.userid=store.getters.userid;
       }
     }
     return config
@@ -90,7 +90,7 @@ service.interceptors.response.use(
         Message({
           message: res.msg || 'Error',
           type: 'error',
-          duration: 5 * 1000
+          duration: 3 * 1000
         })
       }
       return Promise.reject(new Error(res.msg || 'Error'))
@@ -101,9 +101,9 @@ service.interceptors.response.use(
   error => {
     console.log('err' + error) // for debug
     Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
+      message: "有点慢,可以再次点击按钮",
+      type: 'warning',
+      duration: 3 * 1000
     })
     return Promise.reject(error)
   }

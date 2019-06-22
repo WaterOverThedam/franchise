@@ -10,7 +10,6 @@ const getters = {
   isAdmin: state => state.user.roles.some(role => role.indexOf('admin') >= 0),
   isSuper: state => state.user.roles.some(role => role=='admin'),
   userid: state => state.user.id,
-  role: state => state.user.role,
   introduction: state => state.user.introduction,
   status: state => state.user.status,
   roles: state => state.user.roles,

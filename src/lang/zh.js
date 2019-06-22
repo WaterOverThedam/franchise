@@ -71,7 +71,7 @@ export default {
     followSetting:"跟进设置"
   },
   login: {
-    title: '系统登录',
+    title: '加盟管理系统',
     logIn: '登录',
     username: '账号',
     password: '密码',
@@ -114,7 +114,7 @@ export default {
     date: '时间',
     author: '作者',
     readings: '阅读数',
-    status: '状态',
+    status: '跟进状态',
     actions: '操作',
     edit: '编辑',
     publish: '发布',
@@ -147,7 +147,8 @@ export default {
     follow:"跟进设置",
     save:"保存",
     channel:"来源渠道", 
-    linktime:"预望联系时间"
+    linktime:"预望联系时间",
+    nextTime:"计划下次跟进时间"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
