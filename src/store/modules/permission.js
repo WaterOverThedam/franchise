@@ -28,6 +28,7 @@ function filterAsyncRouter(asyncRouterMap, roles) {
     }
     return false
   })
+  //console.error(accessedRouters)
   return accessedRouters
 }
 

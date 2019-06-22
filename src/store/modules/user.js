@@ -3,35 +3,23 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
-    user: '',
-    status: '',
-    code: '',
+    id:"",
     token: getToken(),
     name: '',
     avatar: '',
     introduction: '',
-    account:null,
-    roles: [],
-    setting: {
-      articlePlatform: []
-    }
+    roles: []
   },
 
   mutations: {
-    SET_CODE: (state, code) => {
-      state.code = code
+    SET_ID: (state, id) => {
+      state.id = id
     },
     SET_TOKEN: (state, token) => {
       state.token = token
     },
     SET_INTRODUCTION: (state, introduction) => {
       state.introduction = introduction
-    },
-    SET_SETTING: (state, setting) => {
-      state.setting = setting
-    },
-    SET_STATUS: (state, status) => {
-      state.status = status
     },
     SET_NAME: (state, name) => {
       state.name = name
@@ -52,6 +40,8 @@ const user = {
         loginByUsername(username, userInfo.password).then(response => {
           const data = response.data
           commit('SET_TOKEN', data.token)
+          commit('SET_NAME', username)
+          commit('SET_ID', data.id)
           setToken(response.data.token)
           resolve()
         }).catch(error => {
@@ -67,17 +57,16 @@ const user = {
           if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
           }
-          const data = response.data
-            console.log(data)
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          const data = response.data;
+          commit('SET_NAME', data.name)
+          commit('SET_AVATAR', "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif")
+          commit('SET_INTRODUCTION', "我是"+data.name)
+          //console.error(data.role.name)
+          if (data.role&&data.role.name) { // 验证返回的roles是否是一个非空数组
+            commit('SET_ROLES', [data.role.name])
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
           resolve(response)
         }).catch(error => {
           reject(error)

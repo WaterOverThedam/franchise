@@ -56,7 +56,7 @@
 
 <script>
 import { fetchList } from '@/api/article'
-
+import articleAPI from '@/mock/article'
 export default {
   name: 'inlineEditTable',
   data() {
@@ -84,9 +84,10 @@ export default {
   },
   methods: {
     getList() {
+
+     const {toltal,items} =articleAPI.getList();
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        const items = response.data.items
+ 
         this.list = items.map(v => {
           this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
 
@@ -95,7 +96,7 @@ export default {
           return v
         })
         this.listLoading = false
-      })
+    
     },
     cancelEdit(row) {
       row.title = row.originalTitle

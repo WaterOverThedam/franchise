@@ -2,7 +2,8 @@ export default {
   route: {
     user:"用户",
     clients:"客户",
-    settings: '设置',
+    settings: '系统设置',
+    account:"帐户管理",
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',
@@ -25,7 +26,7 @@ export default {
     backToTop: '返回顶部',
     dragDialog: '拖拽 Dialog',
     dragKanban: '可拖拽看板',
-    charts: '图表',
+    charts: '报表',
     keyboardChart: '键盘图表',
     lineChart: '折线图',
     mixChart: '混合图表',
@@ -48,7 +49,7 @@ export default {
     excel: 'Excel',
     exportExcel: 'Export Excel',
     selectExcel: 'Export Selected',
-    uploadExcel: 'Upload Excel',
+    uploadExcel: '导入 Excel',
     zip: 'Zip',
     exportZip: 'Export Zip',
     theme: '换肤',
@@ -66,7 +67,8 @@ export default {
     edit:'编辑',
     update:'编辑',
     create:'新建',
-    setting:'设置'
+    setting:'设置',
+    followSetting:"跟进设置"
   },
   login: {
     title: '系统登录',
@@ -143,7 +145,9 @@ export default {
     mark:"标记",
     cate:"分类",
     follow:"跟进设置",
-    save:"保存"
+    save:"保存",
+    channel:"来源渠道", 
+    linktime:"预望联系时间"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

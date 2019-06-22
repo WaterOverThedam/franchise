@@ -135,13 +135,16 @@ export default {
     address:"Area",
     mark:"Mark",
     cate:"Categary",
-    follow:"Follow"
+    follow:"Follow",
+    channle:"Channel", 
+    linktime:"linktime"
   },
   dialog:{
     edit:'Edit',
     update:'Update',
     create:'Create',
-    setting:'Setting'
+    setting:'Setting',
+    followSetting:"Setting"
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',

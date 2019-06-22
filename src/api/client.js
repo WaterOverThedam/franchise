@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 
 const requestUrl="https://bbk.800app.com/uploadfile/staticresource/238592/279833/api_auto_json.aspx";
-const frUrl="http://localhost:8081/api/listFranApp";
+const frUrl="/api/listFranApp";
 //const frUrl="https://interface.thelittlegym.com.cn/api/api/listFranApp";
 const sql_list= "select /*main*/ec.id,isnull(jt.id,0)idjt,isnull(crmzdy_82068889,'') client,isnull(ec.crm_name,'') phone,isnull(crmzdy_82068921,'') kid,isnull(crmzdy_82068893,'') group_selected,isnull(crmzdy_82068894,'') sex,isnull(crmzdy_82068917,'') channel,isnull(crmzdy_82068918,'') industry,isnull(crmzdy_82068895,'') addr,isnull(crmzdy_82068919,'') label,convert(varchar(10),ec.create_time,120)create_time,isnull(ec.crmzdy_85213104,'') ls_selected,isnull(crmzdy_82326474,'') gym_selected,isnull(crmzdy_82068892,'') email,ec.edit_name,ec.cust_name,ec.update_time from crm_zdytable_238592_27128_238592_view ec join (select 1 x)x on @condition left join crm_sj_238592_view jt on ec.crm_name=jt.crmzdy_80620120";
 const sql_channel = "select (select * from (select  crm_name name,id from crm_zdytable_238592_25112_238592_view where crmzdy_81755551=1 and crmzdy_81620405_id=0 union all select crm_name,id from crm_zdytable_238592_25112_238592_view where crmzdy_81755551=1 and crmzdy_81620405_id=@idgym ) a  for json path);";
@@ -19,7 +19,7 @@ export function fetchList(cxt) {
   option.dtBegin=params.dtzx&&params.dtzx[0];
   option.dtEnd=params.dtzx&&params.dtzx[1];
   return request({
-    baseURL: frUrl,
+    url: frUrl,
     method: 'post',
     params: option
   })

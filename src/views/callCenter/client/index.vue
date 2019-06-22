@@ -44,6 +44,13 @@
       </el-table-column>
       <el-table-column  width="160px" align="left" prop="email" :label="$t('table.email')"></el-table-column>
       <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
+      <el-table-column  width="60px" :label="$t('table.linktime')">
+        <template slot-scope="scope" @click="calling">
+            <span v-if="scope.row.linktime==1">上午</span>
+            <span v-else>下午</span>
+        </template>
+      </el-table-column>
+      <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
       <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
       <el-table-column  sortable :label="$t('table.status')">
         <template slot-scope="scope" @click="calling">
@@ -71,11 +78,8 @@
 
       <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-col :span=12>
+          <el-col :span=24>
              <el-button type="default" size="small" @click="handleFollow(scope.row)">{{$t('table.follow')}}</el-button>
-          </el-col>
-					<el-col :span=4 v-show="isAdmin">
-             <el-button type="danger" size="small" @click="handleModifyStatus(scope.row,'deleted')">{{$t('table.delete')}}</el-button>
           </el-col>
         </template>
       </el-table-column>
@@ -86,7 +90,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="$t('dialog.setting')" :visible.sync="dialogFormVisible">
+    <el-dialog :title="$t('dialog.followSetting')" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" >
         <el-form-item label="当前跟进状态">
           <el-radio-group v-model="temp.status">
@@ -531,11 +535,13 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this).then(response => {
-        if(response.data.code==0){
-           let res=response.data.data;
+        //前而request.js做了处理
+        if(response.code==0){
+           let res=response.data;
            if(res.length>0){
              this.list = res;
              this.total = res&&res[0].total;
+             console.log(this.list)
            }
         }
         this.listLoading = false
@@ -556,24 +562,6 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.getList()
-    },
-    handleModifyStatus(row, status) {
-      var sql="select ec.id,isnull(crmzdy_82068889,'') client,isnull(ec.crm_name,'') phone,isnull(crmzdy_82068921,'') kid,isnull(crmzdy_82068893,'') group_selected,isnull(crmzdy_82068894,'') sex,isnull(crmzdy_82068917,'') channel,isnull(crmzdy_82068918,'') industry,isnull(crmzdy_82068895,'') addr,isnull(crmzdy_82068919,'') label,convert(varchar(10),ec.create_time,120)create_time,isnull(ec.crmzdy_85213104,'') ls_selected,isnull(crmzdy_82326474,'') gym_selected,isnull(crmzdy_82068892,'') email,ec.edit_name,ec.cust_name,ec.update_time,crmzdy_82068891 birth,crmzdy_82068896 memo from crm_zdytable_238592_27128_238592_view ec where id="+row.id;
-      if(status=="published"){
-         syncOASIS(sql).then(response => {
-            if(response.data&&response.data.errcode==0){
-                this.$message({
-                    message: '同步成功',
-                    type: 'success'
-                })
-            }else{
-                this.$message({
-                    message: '同步失败',
-                    type: 'error'
-                })
-            }
-         });
-      }
     },
     handleReady(temp){
       console.log(this.temp.gym_selected);
@@ -657,6 +645,13 @@ export default {
           })
         }
       })
+    },
+    toDelete(row){
+        this.$confirm('是否确认删除?')
+          .then(function() {
+              handleDelete(row.id);
+          })
+
     },
     handleDelete(row) {
       this.$notify({
@@ -816,7 +811,6 @@ export default {
   },
   mounted(){
     this.getList();
-    console.log(this.roles)
   }
 }
 </script>

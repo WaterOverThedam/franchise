@@ -44,6 +44,7 @@
 
 <script>
 import { fetchList } from '@/api/article'
+import articleAPI from '@/mock/article'
 import { parseTime } from '@/utils'
 
 export default {
@@ -63,10 +64,12 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      fetchList().then(response => {
-        this.list = response.data.items
+      const {toltal,items} =articleAPI.getList();
+      
+        this.list = items
         this.listLoading = false
-      })
+         
+ 
     },
     handleDownload() {
       this.downloadLoading = true

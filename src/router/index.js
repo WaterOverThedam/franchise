@@ -21,7 +21,7 @@ import Layout from '../views/layout/Layout'
 * redirect: noredirect           if `redirect:noredirect` will no redirct in the breadcrumb
 * name:'router-name'             the name is used by <keep-alive> (must set!!!)
 * meta : {
-    roles: ['admin','editor']     will control the page roles (you can set multiple roles)
+    roles: ['admin','tlgcadmin']     will control the page roles (you can set multiple roles)
     title: 'title'               the name show in submenu and breadcrumb (recommend set)
     icon: 'svg-name'             the icon show in the sidebar,
     noCache: true                if true ,the page will no be cached(default is false)
@@ -53,18 +53,19 @@ export const constantRouterMap = [
       name: 'client',
       meta: { title: 'clients', icon: 'peoples'}
     }]
-  },
-  {
-    path: '/documentation',
-    component: Layout,
-    redirect: '/documentation/index',
-    children: [{
-      path: 'index',
-      component: _import('documentation/index'),
-      name: 'documentation',
-      meta: { title: 'documentation', icon: 'documentation', noCache: true }
-    }]
   }
+  // ,
+  // {
+  //   path: '/documentation',
+  //   component: Layout,
+  //   redirect: '/documentation/index',
+  //   children: [{
+  //     path: 'index',
+  //     component: _import('documentation/index'),
+  //     name: 'documentation',
+  //     meta: { title: 'documentation', icon: 'documentation', noCache: true }
+  //   }]
+  // }
 ]
 
 export default new Router({
@@ -79,11 +80,11 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/permission/index',
     alwaysShow: true, // will always show the root menu
-    meta: {roles: ['admin', 'editor']},
+    meta: {roles: ['admin']},
     meta: {
       title: 'permission',
       icon: 'lock',
-      roles: ['admin', 'editor'] // you can set roles in root nav
+      roles: ['admin'] // you can set roles in root nav
     },
     children: [{
       path: 'page',
@@ -115,18 +116,6 @@ export const asyncRouterMap = [
       component: _import('svg-icons/index'),
       name: 'icons',
       meta: { title: 'icons', icon: 'icon', noCache: true }
-    }]
-  },
-  {
-    path: '/settings',
-    component: Layout,
-    alwaysShow: false,
-    meta: { roles: ['admin','tlgcadmin']},
-    children: [{
-      path: 'index',
-      component: _import('settings/index'),
-      name: 'setting',
-      meta: { title: 'settings', icon: 'setting', roles: ['admin']}
     }]
   },
   {
@@ -164,7 +153,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'charts',
       icon: 'chart',
-      roles:['admin']
+      roles:['admin','tlgcadmin']
     },
     children: [
       { path: 'keyboard', component: _import('charts/keyboard'), name: 'keyboardChart', meta: { title: 'keyboardChart', noCache: true }},
@@ -254,12 +243,12 @@ export const asyncRouterMap = [
     meta: {
       title: 'excel',
       icon: 'excel',
-      roles:['admin']
+      roles:['admin','tlgcadmin']
     },
     children: [
-      { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel' }},
-      { path: 'export-selected-excel', component: _import('excel/selectExcel'), name: 'selectExcel', meta: { title: 'selectExcel' }},
-      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel' }}
+      { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel',roles:[]}},
+      { path: 'export-selected-excel', component: _import('excel/selectExcel'), name: 'selectExcel', meta: { title: 'selectExcel',roles:[] }},
+      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel',icon: 'excel',roles:["tlgcadmin"] }}
     ]
   },
 
@@ -293,6 +282,27 @@ export const asyncRouterMap = [
     component: Layout,
     meta:{roles:['admin']},
     children: [{ path: 'index', component: _import('i18n-demo/index'), name: 'i18n', meta: { title: 'i18n', icon: 'international' }}]
+  },
+  {
+    path: '/settings',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: { title: 'settings',icon: 'setting',roles: ['admin','tlgcadmin']},
+    children: [{
+      path: 'label',
+      component: _import('settings/label'),
+      name: 'lebel',
+      meta: { title: 'label',roles:[]}
+    },{
+      path: 'account',
+      component: _import('settings/user/index'),
+      name: 'account',
+      meta: {
+        title: 'account',
+        icon: 'setting',
+        roles: ['admin','tlgcadmin'] // or you can only set roles in sub nav
+      }
+    }]
   },
 
   { path: '*', redirect: '/404', hidden: true }
