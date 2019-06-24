@@ -137,7 +137,8 @@ export default {
     cate:"Categary",
     follow:"Follow",
     channle:"Channel", 
-    linktime:"linktime"
+    linktime:"linktime",
+    assign:"Assign"
   },
   dialog:{
     edit:'Edit',

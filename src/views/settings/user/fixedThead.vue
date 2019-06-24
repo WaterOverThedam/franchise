@@ -1,65 +1,176 @@
 <template>
   <div class="app-container">
+      <div class="filter-container">
+          <el-button type="primary" class="create" size="small"  @click="dialogUserVisible=true">新建帐户</el-button>
+      </div>
+      <el-table :data="users"  border fit highlight-current-row size="small" style="width:68%">
+        <el-table-column prop="username" label="帐号名" width="180"></el-table-column>
+        <el-table-column prop="fullname" label="姓名" width="180"></el-table-column>
+        <el-table-column label="角色" width="180">
+          <template slot-scope="scope">
+            {{scope.row.role|join}}
+          </template>
+        </el-table-column>
+        <el-table-column align="left" :label="$t('table.actions')" >
+          <template slot-scope="scope">
+            <el-col :span=6 :offset="3">
+              <el-button type="primary" size="small" @click="goEdit(scope.row,'修改信息')">{{$t('table.edit')}}</el-button>
+            </el-col>
+            <el-col :span=6>
+              <el-button type="danger" size="small" @click="userDel(scope.row.id)">{{$t('table.delete')}}</el-button>
+            </el-col>
+            <el-col :span=6>
+              <el-button type="danger" size="small" @click="goEdit(scope.row,'重置密码')">{{$t('table.resetPwd')}}</el-button>
+            </el-col>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog :title="dialogTitle" :visible.sync="dialogUserVisible">
+          <el-form label-position="center" >
+                <el-row>
+                  <el-col :span="8">
+                    <el-form-item label-width="80px" label="帐户号:" class="postInfo-container-item">
+                        <el-input   style='min-width:150px;' v-model="user.username"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                      <el-form-item label-width="80px" label="来源:" class="postInfo-container-item">
+                        <el-input   style='min-width:150px;' v-model="user.password"></el-input>
+                      </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                      <el-form-item label-width="80px" label="姓名:" class="postInfo-container-item">
+                            <el-input placeholder="" style='min-width:150px;' v-model="user.fullname"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                      <el-form-item label-width="80px" label="权限:" class="postInfo-container-item">
+                            <el-select v-model="user.roleId" placeholder="请选择">
+                              <el-option
+                                v-for="item in Roles"
+                                :key="item.id"
+                                :label="item.title"
+                                :value="item.id">
+                              </el-option>
+                            </el-select>
+                      </el-form-item>
+                    </el-col>
+                </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogUserVisible = false">{{$t('table.cancel')}}</el-button>
+            <el-button type="primary" @click="userAdd">{{$t('table.save')}}</el-button>
+          </div>
+      </el-dialog>
 
-    <div class="filter-container">
-      <el-checkbox-group v-model="checkboxVal">
-        <el-checkbox label="apple">apple</el-checkbox>
-        <el-checkbox label="banana">banana</el-checkbox>
-        <el-checkbox label="orange">orange</el-checkbox>
-        <el-button type="primary" size="small"  >新建帐户</el-button>
-      </el-checkbox-group>
-       
-    </div>
-
-    <el-table :data="tableData" :key='key' border fit highlight-current-row style="width: 100%">
-      <el-table-column prop="name" label="fruitName" width="180"></el-table-column>
-      <el-table-column :key='fruit' v-for='fruit in formThead' :label="fruit">
-        <template slot-scope="scope">
-          {{scope.row[fruit]}}
-        </template>
-      </el-table-column>
-    </el-table>
-
+      <el-dialog :title="dialogTitle" :visible.sync="dialogResetVisible">
+          <el-form label-position="center" >
+                <el-row>
+                  <el-col :offset="3" :span="8">
+                    <el-form-item label-width="80px" label="新密码:" class="postInfo-container-item">
+                        <el-input   style='min-width:150px;' v-model="user.password"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogUserVisible = false">{{$t('table.cancel')}}</el-button>
+            <el-button type="primary" @click="userAdd">{{$t('table.save')}}</el-button>
+          </div>
+      </el-dialog>
   </div>
 </template>
 
 <script>
-const defaultFormThead = ['apple', 'banana']
+import { userList, roleList, userAdd, userDel,userUpdate} from '@/api/user' 
 
 export default {
-  data() {
+  data(){
     return {
-      tableData: [
-        {
-          name: 'fruit-1',
-          apple: 'apple-10',
-          banana: 'banana-10',
-          orange: 'orange-10'
-        },
-        {
-          name: 'fruit-2',
-          apple: 'apple-20',
-          banana: 'banana-20',
-          orange: 'orange-20'
-        }
-      ],
-      key: 1, // table key
-      formTheadOptions: ['apple', 'banana', 'orange'],
-      checkboxVal: defaultFormThead, // checkboxVal
-      formThead: defaultFormThead // 默认表头 Default header
+      dialogUserVisible:false,
+      dialogResetVisible:false,
+      dialogTitle:"",
+      Roles:[],
+      users:[],
+      user:{username:undefined,password:undefined,fullname:undefined,roleId:undefined}
     }
   },
-  watch: {
-    checkboxVal(valArr) {
-      this.formThead = this.formTheadOptions.filter(i => valArr.indexOf(i) >= 0)
-      this.key = this.key + 1// 为了保证table 每次都会重渲 In order to ensure the table will be re-rendered each time
+  filters:{
+     join(role){
+       var roles=[];
+       if(typeof role!="object") return "无";
+       role.forEach(r => {
+           roles.push(r.title);
+       });
+       return roles.join(",");
+     }
+  },
+  methods:{
+    userAdd(row){
+       userAdd(this.user)
+    },
+    userDel(id){
+       userDel(id)
+    },
+    userSave(){
+      let self=this;
+       this.userUpdate(this.user).then((response)=>{
+          if(response.code==0){
+              Message({
+                message: response.msg,
+                type: 'info',
+                duration: 3 * 1000
+              })
+              self.getUsers();
+          }
+       });
+    },
+    toDialog(row,action){
+       this.dialogTitle=title;
+       if(action=='reset'){
+          this.user={};
+          this.user.id=row.id;
+          this.dialogTitle='重置密码'
+          this.dialogResetVisible=true;
+       }
+       if(action=='create'){
+          this.user={};
+          this.dialogTitle='新建用户'
+          this.dialogUserVisible=true;
+       }
+       if(action=='edit'){
+          this.user=Object.assign({}, row) ;
+          this.dialogTitle='修改用户信息'
+          this.dialogUserVisible=true;
+       }
+    },
+    getUsers(){
+      userList().then((response)=>{
+            if(response.code==0){
+              self.users=response.data;
+            }
+      });
     }
+  },
+  mounted(){
+     let self=this;
+     this.getUsers();
+     roleList().then((response)=>{
+          if(response.code==0){
+            self.Roles=response.data;
+          }
+     });
+     
+  },
+  watch: {
   }
 }
 </script>
 
 <style scoped>
-  .el-button {
-    margin-left:30%;
+  .create {
+    margin-left:61%;
   }
 </style>

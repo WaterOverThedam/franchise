@@ -26,6 +26,7 @@
         </el-dropdown>
       </div> -->
       <el-button  class="filter-item" style="margin-left: 10px;" type="primary" @click="handleSearch" icon="el-icon-search">{{$t('table.search')}}</el-button>
+      <el-button  class="filter-item" style="margin-left: 10px;" type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
       <el-button v-if="isSuper" class="filter-item" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </div>
@@ -126,11 +127,26 @@
       </div>
     </el-dialog>
 
+    <el-dialog :title="$t('table.assign')" :visible.sync="dialogAssignVisible">
+      <el-form label-position="center" >
+        <el-form-item label="跟进人">
+          <el-select v-model="FollowerID" placeholder="请选择">
+            <el-option
+              v-for="item in tutors"
+              :key="item.id"
+              :label="item.fullname"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAssignVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="handleAssign">{{$t('table.save')}}</el-button>
+      </div>
+    </el-dialog>
     <el-dialog title="沟通记录" :visible.sync="dialogMemoVisiable">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"> </el-table-column>
-        <el-table-column prop="pv" label="Pv"> </el-table-column>
-      </el-table>
+ 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.save')}}</el-button>
       </span>
@@ -245,7 +261,8 @@
 </template>
 
 <script>
-import { fetchList, updateFollow, deleteFranApp} from '@/api/client'
+import { fetchList, updateFollow, deleteFranApp, updateAssign} from '@/api/client'
+
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import { mapGetters } from 'vuex';
@@ -393,7 +410,10 @@ export default {
       lableVisible:false,
       dialogStatus: 'create',
       dialogPvVisible: false,
-      pvData: [],
+      pvData:[],
+      dialogAssignVisible:false,
+      tutors:[{id:4,fullname:"test1"},{id:5,fullname:"test2"}],
+      FollowerID:undefined,
       rules: {
           gym: [{ required: true, message: '请输选择中心', trigger: 'blur' }],
           ls: [{ required: true, message: '请选择跟进老师', trigger: 'blur' }],
@@ -615,6 +635,44 @@ export default {
           });
           this.dialogFormVisible=false;
         }
+      })
+    },
+    toAssign(){
+        let self=this;
+        if(!this.selection.ids.length||!this.selection.show){
+          self.$message({
+            type: 'info',
+            message: '请先勾选需分配的记录,再点击按钮',
+            duration: 4 * 1000
+          });     
+          this.selection.show=true;
+          this.selection.ids=[];
+          return;
+        }
+        self.dialogAssignVisible=true;
+    },
+    handleAssign(){
+      let self=this;
+      updateAssign(this).then(function(res){
+         if(res.code==0){
+            self.$notify({
+              title: '成功',
+              message: '分配成功',
+              type: 'success',
+              duration: 2000
+            })
+            self.selection.ids=[];
+            self.selection.show=false;
+            self.dialogAssignVisible=false;
+            self.getList();
+         }else{
+            self.$notify({
+              title: '错误',
+              message: res.msg,
+              type: 'error',
+              duration: 2000
+            })
+         }
       })
     },
     toDelete(){

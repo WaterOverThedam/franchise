@@ -33,12 +33,20 @@ export function deleteFranApp(cxt) {
     method: 'post',
     params: option
   })
-  
 }
 export function updateFollow(data) {
   const option={nextTime:data.nextTime,id:data.id,status:data.status};
   return request({
     url: "/api/updateFranApp",
+    method: 'post',
+    params: option
+  })
+}
+
+export function updateAssign(cxt) {
+  const option={ids:cxt.selection.ids,FollowerID:cxt.FollowerID};
+  return request({
+    url: "/api/updateFranApps",
     method: 'post',
     params: option
   })

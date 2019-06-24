@@ -21,7 +21,7 @@ import Layout from '../views/layout/Layout'
 * redirect: noredirect           if `redirect:noredirect` will no redirct in the breadcrumb
 * name:'router-name'             the name is used by <keep-alive> (must set!!!)
 * meta : {
-    roles: ['admin','tlgcadmin']     will control the page roles (you can set multiple roles)
+    roles: ['Admin','Tlgcadmin']     will control the page roles (you can set multiple roles)
     title: 'title'               the name show in submenu and breadcrumb (recommend set)
     icon: 'svg-name'             the icon show in the sidebar,
     noCache: true                if true ,the page will no be cached(default is false)
@@ -80,11 +80,11 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/permission/index',
     alwaysShow: true, // will always show the root menu
-    meta: {roles: ['admin']},
+    meta: {roles: ['Admin']},
     meta: {
       title: 'permission',
       icon: 'lock',
-      roles: ['admin'] // you can set roles in root nav
+      roles: ['Admin'] // you can set roles in root nav
     },
     children: [{
       path: 'page',
@@ -92,7 +92,7 @@ export const asyncRouterMap = [
       name: 'pagePermission',
       meta: {
         title: 'pagePermission',
-        roles: ['admin'] // or you can only set roles in sub nav
+        roles: ['Admin'] // or you can only set roles in sub nav
       }
     },
     {
@@ -101,7 +101,7 @@ export const asyncRouterMap = [
       name: 'directivePermission',
       meta: {
         title: 'directivePermission',
-        roles: ['admin']
+        roles: ['Admin']
         // if do not set roles, means: this page does not require permission
       }
     }]
@@ -110,7 +110,7 @@ export const asyncRouterMap = [
   {
     path: '/icon',
     component: Layout,
-    meta: {roles: ['admin']},
+    meta: {roles: ['Admin']},
     children: [{
       path: 'index',
       component: _import('svg-icons/index'),
@@ -126,7 +126,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'components',
       icon: 'component',
-      roles:['admin']
+      roles:['Admin']
     },
     children: [
       { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},
@@ -153,7 +153,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'charts',
       icon: 'chart',
-      roles:['admin','tlgcadmin']
+      roles:['Admin','Tlgcadmin']
     },
     children: [
       { path: 'keyboard', component: _import('charts/keyboard'), name: 'keyboardChart', meta: { title: 'keyboardChart', noCache: true }},
@@ -170,7 +170,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'example',
       icon: 'example',
-      roles:['admin']
+      roles:['Admin']
     },
     children: [
       {
@@ -203,7 +203,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'form',
       icon: 'form',
-      roles:['admin']
+      roles:['Admin']
     },
     children: [
       { path: 'create-form', component: _import('form/create'), name: 'createForm', meta: { title: 'createForm', icon: 'table' }},
@@ -219,7 +219,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'errorPages',
       icon: '404',
-      roles:['admin']
+      roles:['Admin']
     },
     children: [
       { path: '401', component: _import('errorPage/401'), name: 'page401', meta: { title: 'page401', noCache: true }},
@@ -230,7 +230,7 @@ export const asyncRouterMap = [
   {
     path: '/error-log',
     component: Layout,
-    meta: {roles:['admin']},
+    meta: {roles:['Admin']},
     redirect: 'noredirect',
     children: [{ path: 'log', component: _import('errorLog/index'), name: 'errorLog', meta: { title: 'errorLog', icon: 'bug' }}]
   },
@@ -243,12 +243,12 @@ export const asyncRouterMap = [
     meta: {
       title: 'excel',
       icon: 'excel',
-      roles:['admin','tlgcadmin']
+      roles:['Admin','Tlgcadmin']
     },
     children: [
       { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel',roles:[]}},
       { path: 'export-selected-excel', component: _import('excel/selectExcel'), name: 'selectExcel', meta: { title: 'selectExcel',roles:[] }},
-      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel',icon: 'excel',roles:["tlgcadmin"] }}
+      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel',icon: 'excel',roles:["Tlgcadmin"] }}
     ]
   },
 
@@ -257,7 +257,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/zip/download',
     alwaysShow: true,
-    meta: { title: 'zip', icon: 'zip',roles:['admin'] },
+    meta: { title: 'zip', icon: 'zip',roles:['Admin'] },
     children: [{ path: 'download', component: _import('zip/index'), name: 'exportZip', meta: { title: 'exportZip' }}]
   },
 
@@ -265,7 +265,7 @@ export const asyncRouterMap = [
     path: '/theme',
     component: Layout,
     redirect: 'noredirect',
-    meta:{roles:['admin']},
+    meta:{roles:['Admin']},
     children: [{ path: 'index', component: _import('theme/index'), name: 'theme', meta: { title: 'theme', icon: 'theme' }}]
   },
 
@@ -273,21 +273,21 @@ export const asyncRouterMap = [
     path: '/clipboard',
     component: Layout,
     redirect: 'noredirect',
-    meta:{roles:['admin']},
+    meta:{roles:['Admin']},
     children: [{ path: 'index', component: _import('clipboard/index'), name: 'clipboardDemo', meta: { title: 'clipboardDemo', icon: 'clipboard' }}]
   },
 
   {
     path: '/i18n',
     component: Layout,
-    meta:{roles:['admin']},
+    meta:{roles:['Admin']},
     children: [{ path: 'index', component: _import('i18n-demo/index'), name: 'i18n', meta: { title: 'i18n', icon: 'international' }}]
   },
   {
     path: '/settings',
     component: Layout,
     redirect: 'noredirect',
-    meta: { title: 'settings',icon: 'setting',roles: ['admin','tlgcadmin']},
+    meta: { title: 'settings',icon: 'setting',roles: ['Admin','Tlgcadmin']},
     children: [{
       path: 'label',
       component: _import('settings/label'),
@@ -300,7 +300,7 @@ export const asyncRouterMap = [
       meta: {
         title: 'account',
         icon: 'setting',
-        roles: ['admin','tlgcadmin'] // or you can only set roles in sub nav
+        roles: ['Admin','Tlgcadmin'] // or you can only set roles in sub nav
       }
     }]
   },

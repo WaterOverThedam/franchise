@@ -117,6 +117,7 @@ export default {
     status: '跟进状态',
     actions: '操作',
     edit: '编辑',
+    resetPwd:'重置密码',
     publish: '发布',
     draft: '草稿',
     delete: '删除',
@@ -148,7 +149,8 @@ export default {
     save:"保存",
     channel:"来源渠道", 
     linktime:"预望联系时间",
-    nextTime:"计划下次跟进时间"
+    nextTime:"计划下次跟进时间",
+    assign:"分配任务"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

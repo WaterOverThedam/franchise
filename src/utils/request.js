@@ -100,8 +100,12 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
+    let msg=error.message;
+    if(msg.indexOf("timeout")!=-1){
+       msg="有点慢,可以再次点击按钮";
+    }
     Message({
-      message: "有点慢,可以再次点击按钮",
+      message: msg,
       type: 'warning',
       duration: 3 * 1000
     })
