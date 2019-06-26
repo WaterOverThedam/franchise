@@ -452,7 +452,7 @@ export default {
   },
   methods: {
     sortChange(param){
-        this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c"));
+        this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c")+1);
         this.getList();
     },
     tag_select(){
