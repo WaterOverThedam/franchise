@@ -67,7 +67,7 @@
             <span v-text="handleStatus[scope.row.status]"></span>
         </template>
       </el-table-column>
-      <el-table-column  width="95px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
+      <el-table-column  sortable width="95px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
         
       <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
         <template slot-scope="scope" @click="noting">
@@ -452,7 +452,7 @@ export default {
   },
   methods: {
     sortChange(param){
-        this.listQuery.sort=param.prop+" "+param.order.substr(0,3);
+        this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c"));
         this.getList();
     },
     tag_select(){
