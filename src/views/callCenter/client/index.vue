@@ -91,7 +91,7 @@
       <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-col :span=24>
-             <el-button type="default" size="small" @click="handleFollow(scope.row)">{{$t('table.follow')}}</el-button>
+             <el-button type="default" size="small" @click="toFollow(scope.row)">{{$t('table.follow')}}</el-button>
           </el-col>
         </template>
       </el-table-column>
@@ -103,15 +103,15 @@
     </div>
 
     <el-dialog :title="$t('dialog.followSetting')" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" >
-        <el-form-item label="当前跟进状态">
+      <el-form :rules="rules" ref="followForm" :model="temp" label-position="left" >
+        <el-form-item label="当前跟进进度" prop="status">
           <el-radio-group v-model="temp.status">
             <el-radio label="1">待处理</el-radio>
             <el-radio label="2">处理中</el-radio>
             <el-radio label="3">已完结</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="下次跟进时间">
+        <el-form-item label="下次跟进时间" prop="nextTime">
             <el-date-picker
               v-model="temp.nextTime"
               type="date"
@@ -127,23 +127,27 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="$t('table.assign')" :visible.sync="dialogAssignVisible">
-      <el-form label-position="center" >
-        <el-form-item label="跟进人">
-          <el-select v-model="FollowerID" placeholder="请选择">
-            <el-option
-              v-for="item in tutors"
-              :key="item.id"
-              :label="item.fullname"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogAssignVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="handleAssign">{{$t('table.save')}}</el-button>
-      </div>
+    <el-dialog :title="$t('table.assign')" :visible.sync="dialogAssignVisible" width="40%">
+          <el-form label-position="center" >
+                <el-row>
+                  <el-col :offset="3">
+                    <el-form-item label="跟进人">
+                      <el-select v-model="FollowerID" placeholder="请选择">
+                        <el-option
+                          v-for="item in tutors"
+                          :key="item.id"
+                          :label="item.fullname"
+                          :value="item.id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogAssignVisible = false">{{$t('table.cancel')}}</el-button>
+            <el-button type="primary" @click="handleAssign">{{$t('table.save')}}</el-button>
+          </div>
     </el-dialog>
     <el-dialog title="沟通记录" :visible.sync="dialogMemoVisiable">
  
@@ -397,7 +401,7 @@ export default {
           status:undefined,
           nextTime:undefined
       },
-      row_cur:undefined,
+      row_cur:{},
       todayFollow:false,
       selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
@@ -412,37 +416,11 @@ export default {
       dialogPvVisible: false,
       pvData:[],
       dialogAssignVisible:false,
-      tutors:[{id:4,fullname:"test1"},{id:5,fullname:"test2"}],
+      users:[],
       FollowerID:undefined,
       rules: {
-          gym: [{ required: true, message: '请输选择中心', trigger: 'blur' }],
-          ls: [{ required: true, message: '请选择跟进老师', trigger: 'blur' }],
-          client: [
-            { required: true, message: '请输入客户名称', trigger: 'change' },
-            { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }
-          ],
-          channel: [
-            { required: false, message: '请选择客户来源', trigger: 'change' }
-          ],
-          importance: [
-            { required: false, message: '请对例子质量进行评估', trigger: 'change' }
-          ],
-          ls_selected: [
-            { required: true, message: '请选择跟进老师', trigger: 'change' }
-          ],
-          gym_selected: [
-            { required: true, message: '请选择所属中心', trigger: 'change' }
-          ],
-          phone:[
-            { required: true, message: '请输入手机号',trigger:'blur'},
-            { validator: validate_phone, trigger: 'blur' }
-          ],
-          email:[
-            { validator: validate_mail, trigger: 'blur' }
-          ],
-          sex: [
-            { required: true, message: '选择性别', trigger: 'change' }
-          ]
+          nextTime: [{ required: true, message: '请输选择下次跟进时间', trigger: 'blur' }],
+          status: [{ required: true, message: '请选择处理进度', trigger: 'blur' }],
       },
       downloadLoading: false
     }
@@ -465,7 +443,12 @@ export default {
       'roles',
       'isAdmin',
       'isSuper'
-    ])
+    ]),
+    tutors(){
+      return this.users.filter(function(u){
+          return u.fullname.indexOf("管理员")==-1;
+      })
+    }
   },
   methods: {
     sortChange(param){
@@ -617,7 +600,8 @@ export default {
     handleUpdate(row) {
          this.temp = Object.assign({}, row) // copy obj
     },
-    handleFollow(row){
+    toFollow(row){
+         this.row_cur=row;
          this.temp.id=row.id;
          this.temp.status=row.status.toString();
          this.temp.nextTime=row.nextTime;
@@ -626,8 +610,8 @@ export default {
     updateData(data) {
       updateFollow(data).then((res)=>{
         if(res.code==0){
-          this.row_cur.status=row.status.valueOf();
-          this.row_cur.nextTime=row.nextTime;
+          this.row_cur.status=data.status.valueOf();
+          this.row_cur.nextTime=data.nextTime;
           this.$message({
               showClose: true,
               message: res.msg,
@@ -652,28 +636,36 @@ export default {
         self.dialogAssignVisible=true;
     },
     handleAssign(){
-      let self=this;
-      updateAssign(this).then(function(res){
-         if(res.code==0){
+        let self=this;
+        if(!this.FollowerID){
             self.$notify({
-              title: '成功',
-              message: '分配成功',
-              type: 'success',
-              duration: 2000
+                title: '错误',
+                message: "请选择要分配的老师",
+                type: 'error',
+                duration: 2000
             })
-            self.selection.ids=[];
-            self.selection.show=false;
-            self.dialogAssignVisible=false;
-            self.getList();
-         }else{
-            self.$notify({
-              title: '错误',
-              message: res.msg,
-              type: 'error',
-              duration: 2000
-            })
-         }
-      })
+        }
+        updateAssign(this).then(function(res){
+          if(res.code==0){
+              self.$notify({
+                title: '成功',
+                message: '分配成功',
+                type: 'success',
+                duration: 2000
+              })
+              self.selection.ids=[];
+              self.selection.show=false;
+              self.dialogAssignVisible=false;
+              self.getList();
+          }else{
+              self.$notify({
+                title: '错误',
+                message: res.msg,
+                type: 'error',
+                duration: 2000
+              })
+          }
+        })
     },
     toDelete(){
         let self=this;
@@ -881,6 +873,7 @@ export default {
   },
   mounted(){
     this.getList();
+    this.getUsers();
   }
 }
 </script>

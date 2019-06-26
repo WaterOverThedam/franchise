@@ -21,14 +21,23 @@ export function userAdd(user) {
   return request({
     url: '/user/userAdd',
     method: 'get',
-    params: { id }
+    params: user 
+
+  })
+}
+
+export function userUpdate(user) {
+  return request({
+    url: '/user/userUpdate',
+    method: 'get',
+    params: user
 
   })
 }
 
 export function userDel(id) {
   return request({
-    url: '/article/userDel',
+    url: '/user/userDel',
     method: 'get',
     params: { id }
   })

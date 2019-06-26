@@ -6,6 +6,7 @@ const user = {
     id:"",
     token: getToken(),
     name: '',
+    fullname: '',
     avatar: '',
     introduction: '',
     roles: []
@@ -24,6 +25,10 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
+    SET_FNAME: (state, name) => {
+
+      state.fullname = name
+    },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
@@ -41,6 +46,7 @@ const user = {
           const data = response.data
           commit('SET_TOKEN', data.token)
           commit('SET_NAME', username)
+          commit('SET_FNAME', data.fullname)
           commit('SET_ID', data.id)
           setToken(response.data.token)
           resolve()

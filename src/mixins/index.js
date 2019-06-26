@@ -1,14 +1,12 @@
 import { mapGetters } from 'vuex';
 import request from '@/utils/request';
 const requestUrl="https://bbk.800app.com/uploadfile/staticresource/238592/279833/api_auto_json.aspx";
-
+import { userList } from '@/api/user' 
 export default{
     data(){
        return {
            gym:undefined,
            gyms:undefined,
-           tutor:undefined,
-           tutors:undefined
        }
     },
     computed: {
@@ -124,6 +122,14 @@ export default{
             return function(row){
                 return tmp(row,label);
             };
+        },
+        getUsers(){
+          let self=this;
+          userList().then((response)=>{
+                if(response.code==0){
+                  self.users=response.data;
+                }
+          });
         }
 
     }

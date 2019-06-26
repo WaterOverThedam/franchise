@@ -47,7 +47,7 @@ export default {
         })
         return false
       }
-     // screenfull.toggle()
+      screenfull.toggle()
     }
   }
 }

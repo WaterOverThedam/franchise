@@ -8,7 +8,7 @@
       <error-log class="errLog-container right-menu-item"></error-log>
 
       <el-tooltip effect="dark" :content="$t('navbar.screenfull')" placement="bottom">
-        <screenfull class="screenfull right-menu-item"></screenfull>
+        <screenfull @click.native="toggleSideBar" class="screenfull right-menu-item"></screenfull>
       </el-tooltip>
 
       <lang-select class="international right-menu-item"></lang-select>

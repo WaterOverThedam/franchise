@@ -1,52 +1,52 @@
 <template>
   <div class="app-container">
       <div class="filter-container">
-          <el-button type="primary" class="create" size="small"  @click="dialogUserVisible=true">新建帐户</el-button>
+          <el-button type="primary" class="create" size="small"  @click="toDialog('create')">新建帐户</el-button>
       </div>
-      <el-table :data="users"  border fit highlight-current-row size="small" style="width:68%">
-        <el-table-column prop="username" label="帐号名" width="180"></el-table-column>
-        <el-table-column prop="fullname" label="姓名" width="180"></el-table-column>
-        <el-table-column label="角色" width="180">
+      <el-table :data="users" border fit highlight-current-row size="small" style="width:70%">
+        <el-table-column prop="username" label="帐号名" width="140"></el-table-column>
+        <el-table-column prop="fullname" label="姓名" width="140"></el-table-column>
+        <el-table-column label="角色" >
           <template slot-scope="scope">
-            {{scope.row.role|join}}
+            {{scope.row.role}}
           </template>
         </el-table-column>
-        <el-table-column align="left" :label="$t('table.actions')" >
+        <el-table-column align="left" :label="$t('table.actions')" width="250">
           <template slot-scope="scope">
-            <el-col :span=6 :offset="3">
-              <el-button type="primary" size="small" @click="goEdit(scope.row,'修改信息')">{{$t('table.edit')}}</el-button>
+            <el-col :span=6 :offset="1">
+              <el-button type="primary" size="small" @click="toDialog('edit',scope.row)">{{$t('table.edit')}}</el-button>
             </el-col>
             <el-col :span=6>
               <el-button type="danger" size="small" @click="userDel(scope.row.id)">{{$t('table.delete')}}</el-button>
             </el-col>
             <el-col :span=6>
-              <el-button type="danger" size="small" @click="goEdit(scope.row,'重置密码')">{{$t('table.resetPwd')}}</el-button>
+              <el-button type="danger" size="small" @click="toDialog('reset',scope.row)">{{$t('table.resetPwd')}}</el-button>
             </el-col>
           </template>
         </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="dialogUserVisible">
-          <el-form label-position="center" >
-                <el-row>
+          <el-form :rules="userRules" ref="userForm" :model="user" label-position="center" >
+                <el-row v-if="dialogTitle=='新建用户'">
                   <el-col :span="8">
-                    <el-form-item label-width="80px" label="帐户号:" class="postInfo-container-item">
+                      <el-form-item label-width="80px" label="帐户号:" prop="username">
                         <el-input   style='min-width:150px;' v-model="user.username"></el-input>
-                    </el-form-item>
+                      </el-form-item>
                   </el-col>
-                  <el-col :span="8">
-                      <el-form-item label-width="80px" label="来源:" class="postInfo-container-item">
+                  <el-col :offset="2" :span="8">
+                      <el-form-item  label-width="80px" label="密码:" prop="password">
                         <el-input   style='min-width:150px;' v-model="user.password"></el-input>
                       </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="8">
-                      <el-form-item label-width="80px" label="姓名:" class="postInfo-container-item">
+                      <el-form-item  label-width="80px" label="姓名:" prop="fullname">
                             <el-input placeholder="" style='min-width:150px;' v-model="user.fullname"></el-input>
                       </el-form-item>
                     </el-col>
-                    <el-col :span="8">
-                      <el-form-item label-width="80px" label="权限:" class="postInfo-container-item">
+                    <el-col :offset="2" :span="8">
+                      <el-form-item label-width="80px" label="权限:"  prop="roleId">
                             <el-select v-model="user.roleId" placeholder="请选择">
                               <el-option
                                 v-for="item in Roles"
@@ -61,31 +61,38 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogUserVisible = false">{{$t('table.cancel')}}</el-button>
-            <el-button type="primary" @click="userAdd">{{$t('table.save')}}</el-button>
+            <el-button type="primary" @click="userSave('userForm')">{{$t('table.save')}}</el-button>
           </div>
       </el-dialog>
 
-      <el-dialog :title="dialogTitle" :visible.sync="dialogResetVisible">
-          <el-form label-position="center" >
+      <el-dialog :title="dialogTitle" :visible.sync="dialogResetVisible" width="40%">
+          <el-form label-position="center" ref="pwdForm" :rules="userRules" :model="user">
                 <el-row>
                   <el-col :offset="3" :span="8">
-                    <el-form-item label-width="80px" label="新密码:" class="postInfo-container-item">
-                        <el-input   style='min-width:150px;' v-model="user.password"></el-input>
+                    <el-form-item label-width="80px" label="新密码:" prop="password">
+                        <el-input   style='min-width:200px;' v-model="user.password"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogUserVisible = false">{{$t('table.cancel')}}</el-button>
-            <el-button type="primary" @click="userAdd">{{$t('table.save')}}</el-button>
+            <el-button type="primary" @click="userSave('pwdForm')">{{$t('table.save')}}</el-button>
           </div>
       </el-dialog>
   </div>
 </template>
 
 <script>
-import { userList, roleList, userAdd, userDel,userUpdate} from '@/api/user' 
-
+import { roleList, userAdd, userDel,userUpdate} from '@/api/user' 
+import { MessageBox, Message } from 'element-ui'
+var validate_string = (rule, value, callback) => {
+  if (!value) {
+    callback(new Error(rule.message));
+  }else{
+    callback();
+  } 
+};
 export default {
   data(){
     return {
@@ -94,7 +101,7 @@ export default {
       dialogTitle:"",
       Roles:[],
       users:[],
-      user:{username:undefined,password:undefined,fullname:undefined,roleId:undefined}
+      user:{password:undefined,fullname:undefined,roleId:undefined,username:undefined},
     }
   },
   filters:{
@@ -107,16 +114,38 @@ export default {
        return roles.join(",");
      }
   },
+  computed:{
+        userRules(){
+          let rule={};
+          let type=this.dialogTitle;
+          if(type=='新建用户'){
+              rule.username= [
+                { validator: validate_string,message: '请输入用户名',trigger: 'blur' }
+              ];
+          }
+          if(type=="新建用户"||type=="重置密码"){
+              rule.password=[
+                { required: true, message: '请输入密码', trigger: 'blur' },
+                { min: 6, message: '至少6个字符', trigger: 'blur' }
+              ]
+          }
+          if(type!="重置密码"){
+              rule.fullname= [
+                    { required: true, message: '请输入姓名', trigger: 'blur' },
+                    { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
+              ];
+              rule.roleId=[
+                    { required: true, message: '请选择权限', trigger: 'change' }
+              ]
+          }
+         
+          return rule;
+      }
+  },
   methods:{
-    userAdd(row){
-       userAdd(this.user)
-    },
     userDel(id){
-       userDel(id)
-    },
-    userSave(){
       let self=this;
-       this.userUpdate(this.user).then((response)=>{
+       userDel(id).then((response)=>{
           if(response.code==0){
               Message({
                 message: response.msg,
@@ -125,10 +154,30 @@ export default {
               })
               self.getUsers();
           }
-       });
+     });
     },
-    toDialog(row,action){
-       this.dialogTitle=title;
+    userSave(form){
+      let self=this;
+      let save=this.user.id?userUpdate:userAdd;
+       
+      this.$refs[form].validate((valid)=> { 
+         if(valid){
+            save(this.user).then((response)=>{
+                if(response.code==0){
+                    Message({
+                      message: response.msg,
+                      type: 'info',
+                      duration: 3 * 1000
+                    })
+                    self.getUsers();
+                    self.dialogUserVisible=false;
+                    self.dialogResetVisible=false;
+                }
+            });
+          }
+      })
+    },
+    toDialog(action,row){
        if(action=='reset'){
           this.user={};
           this.user.id=row.id;
@@ -145,13 +194,11 @@ export default {
           this.dialogTitle='修改用户信息'
           this.dialogUserVisible=true;
        }
-    },
-    getUsers(){
-      userList().then((response)=>{
-            if(response.code==0){
-              self.users=response.data;
-            }
-      });
+       this.$nextTick(function(){
+          for(var i in this.$refs){
+              this.$refs[i].clearValidate();
+         } 
+       })
     }
   },
   mounted(){
@@ -171,6 +218,6 @@ export default {
 
 <style scoped>
   .create {
-    margin-left:61%;
+    margin-left:60%;
   }
 </style>
