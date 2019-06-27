@@ -65,6 +65,7 @@ export default {
   },
   dialog:{
     edit:'编辑',
+    add:'添加',
     update:'编辑',
     create:'新建',
     setting:'设置',
@@ -116,6 +117,7 @@ export default {
     readings: '阅读数',
     status: '跟进状态',
     actions: '操作',
+    create:'新建',
     edit: '编辑',
     resetPwd:'重置密码',
     publish: '发布',
@@ -150,7 +152,8 @@ export default {
     channel:"来源渠道", 
     linktime:"预望联系时间",
     nextTime:"计划下次跟进时间",
-    assign:"分配任务"
+    assign:"分配",
+    exit:"退出"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

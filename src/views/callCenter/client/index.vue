@@ -1,35 +1,50 @@
 <template>
   <div class="app-container calendar-list-container">
-    <div class="filter-container">
-      <div class="filter-item">
-      <el-date-picker  
-          v-model="listQuery.dtzx"
-          :picker-options="rangeTimeOps"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          range-separator="-"
-          type="daterange"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :default-time="['00:00:00', '23:59:59']"
-          align="left" clearable>
-      </el-date-picker>
-      </div>
-      <div class='filter-item search-input'>
-        <el-input :placeholder="search.placeholder" v-model="search.value" clearable></el-input>
-      </div>
-      <!-- <div v-waves class="filter-item"  @click="handleSearch">
-        <el-dropdown  @command="handleMu" split-button type="primary">
-          <i class="el-icon-search"></i>&nbsp;{{$t('table.search')}}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
-            </el-dropdown-menu> 
-        </el-dropdown>
-      </div> -->
-      <el-button  class="filter-item" style="margin-left: 10px;" type="primary" @click="handleSearch" icon="el-icon-search">{{$t('table.search')}}</el-button>
-      <el-button  class="filter-item" style="margin-left: 10px;" type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
-      <el-button v-if="isSuper" class="filter-item" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
+     <el-row>
+       <el-col :span="13">
+          <el-col :span="16">
+              <el-date-picker  
+                  v-model="listQuery.dtzx"
+                  :picker-options="rangeTimeOps"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  range-separator="-"
+                  type="daterange"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :default-time="['00:00:00', '23:59:59']"
+                  align="left" clearable>
+              </el-date-picker>
+          </el-col>
+          <el-col :span="8">
+              <el-input style='margin-left:2px' :placeholder="search.placeholder" v-model="search.value" clearable></el-input>
+          </el-col>
+      </el-col>
+       <el-col :span="11">
+          <el-col :span="7" :offset="1">
+              <div v-waves   @click="handleSearch">
+                <el-dropdown  @command="handleMu" split-button type="primary">
+                  <i class="el-icon-search"></i>&nbsp;{{$t('table.search')}}
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
+                    </el-dropdown-menu> 
+                </el-dropdown>
+              </div>
+          </el-col>
+          <el-col :span="4">
+              <el-button  type="primary" @click="handleSearch" >{{$t('table.create')}}</el-button>
+          </el-col>
+          <el-col :span="4">
+              <el-button  type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
+          </el-col>
+          <el-col :span="4" style='margin-left:5px'>
+              <el-button  type="danger"   >{{$t('table.export')}}</el-button>
+          </el-col>
+          <el-col :span="3">
+              <el-button  v-if="isSuper" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
+          </el-col>
+       </el-col>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
-    </div>
+    </el-row>
     <!-- <el-row>
       <el-col :span="24"> </el-col>
     </el-row> -->
@@ -52,7 +67,15 @@
             <!-- </el-tooltip> -->
         </template>
       </el-table-column>
-      <el-table-column  width="160px" align="left" prop="email" :label="$t('table.email')"></el-table-column>
+      <el-table-column  width="50px" align="center"  :label="$t('table.email')">
+        <template slot-scope="scope">
+          <el-tooltip  effect="light" :content="scope.row.email|empty" placement="top" >
+            <div class="icon-item" @click="toMail(scope.row.emai)">
+              <svg-icon icon-class="email"/>
+            </div>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
       <el-table-column  width="60px" :label="$t('table.linktime')">
         <template slot-scope="scope" @click="calling">
@@ -71,8 +94,8 @@
         
       <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
         <template slot-scope="scope" @click="noting">
-          <el-tooltip  effect="light" content="点击记录沟通信息" placement="left" >
-            <div class="icon-item" @click="show_memo(scope.row.memo)">
+          <el-tooltip  effect="light" :content="!scope.row.memo?'点击记录沟通信息':scope.row.memo" placement="left" >
+            <div class="icon-item" @click="show_memo(scope.row)">
               <svg-icon icon-class="form" />
             </div>
           </el-tooltip>
@@ -149,12 +172,58 @@
             <el-button type="primary" @click="handleAssign">{{$t('table.save')}}</el-button>
           </div>
     </el-dialog>
-    <el-dialog title="沟通记录" :visible.sync="dialogMemoVisiable">
- 
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.save')}}</el-button>
-      </span>
+    <el-dialog :visible.sync="dialogMemo.Visiable" fullscreen>
+        <div slot="title" >
+            <el-tag type="danger">{{dialogMemo.title}}</el-tag>
+        </div>
+        <el-form label-position="center" >
+            <el-card>
+                <el-row >
+                  <el-col :span="4">
+                      <el-form-item label-width="80px" label="添加标签:">
+                        <a href="#" @click.prevent="dialogLabelVisiable=true"><i class="el-icon-edit"></i></a>
+                      </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                       <p class="label">xxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxx</p>
+                  </el-col>
+                </el-row>
+            </el-card>
+            <el-card class="gt">
+                <el-row>
+                    <el-col :span="8">
+                      <el-form-item  label-width="80px" label="沟通日期:" >
+                           <el-date-picker  value-format="yyyy-MM-dd" v-model="gt.dtGotong" type="date" placeholder="选择日期"> </el-date-picker>
+                      </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="17">
+                      <el-form-item  label-width="80px" label="沟通内容:" >
+                            <el-input  v-model="gt.content"  :autosize="{ minRows: 2, maxRows: 6 }" type="textarea" ></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :offset="1" :span="6">
+                      <el-form-item>
+                          <el-button @click="addGt()" type="primary" icon="el-icon-plus" round>{{$t("table.add")}}</el-button>
+                      </el-form-item>
+                    </el-col>
+                    
+                </el-row>
+            </el-card>
+            <el-card>
+                <el-alert
+                  title="消息提示的文案"
+                  type="info">
+                </el-alert>
+            </el-card>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button style="margin-right:5%" type="danger" @click="memoExit()">{{$t('table.exit')}}</el-button>
+          </span>
     </el-dialog>
+
+
     <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
       <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
         <el-table-column prop="key" label="Channel"> </el-table-column>
@@ -165,7 +234,7 @@
       </span>
     </el-dialog>
 
-   <!--  <el-dialog title="标签设置" :visible.sync="dialogLabelVisiable">
+  <el-dialog title="选择标签" :visible.sync="dialogLabelVisiable">
       <el-row>
             <el-card class="box-card">
       <div slot="header" class="clearfix">
@@ -203,7 +272,7 @@
                 {{tag.label}}
             </el-tag>
       </el-row>
-    </el-dialog> -->
+    </el-dialog> 
  
 
     <el-dialog title="高级筛选" :visible.sync="dialogAdvVisiable" width="60%">
@@ -266,6 +335,7 @@
 
 <script>
 import { fetchList, updateFollow, deleteFranApp, updateAssign} from '@/api/client'
+import { gtList, gtSave, gtDel } from '@/api/goTong'
 
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
@@ -408,7 +478,7 @@ export default {
       handleStatus:{"1":"待处理","2":"处理中","2":"已完结"},
       importanceOptions: [1, 2, 3,4],
       dialogFormVisible: false,
-      dialogMemoVisiable: false,
+      dialogMemo: {title:"沟通记录",Visiable: false},
       dialogLabelVisiable: false,
       dialogAdvVisiable: false,
       lableVisible:false,
@@ -418,6 +488,7 @@ export default {
       dialogAssignVisible:false,
       users:[],
       FollowerID:undefined,
+      gt:{dtGotong:new Date(),content:"",FranAppId:undefined,userId:undefined},
       rules: {
           nextTime: [{ required: true, message: '请输选择下次跟进时间', trigger: 'blur' }],
           status: [{ required: true, message: '请选择处理进度', trigger: 'blur' }],
@@ -436,13 +507,18 @@ export default {
     },
     typeFilter(type) {
       return calendarTypeKeyValue[type]
+    },
+    empty(val){
+      if(!val.trim()) return "无";
+      return val;
     }
   },
   computed:{
     ...mapGetters([
       'roles',
       'isAdmin',
-      'isSuper'
+      'isSuper',
+      'userid'
     ]),
     tutors(){
       return this.users.filter(function(u){
@@ -451,6 +527,30 @@ export default {
     }
   },
   methods: {
+    toMail(addr){
+      if(!addr){
+        this.$message({
+            showClose: true,
+            message: "没有邮箱地址,不能发邮件",
+            type: 'error'
+        });
+      }
+    },
+    memoExit(){
+        this.dialogMemo.Visiable = false;
+    },
+    addGt(){
+      gtSave(this.gt).then((res)=>{
+        if(res.code==0){
+            this.$notify({
+              title: '成功',
+              message: '已保存',
+              type: 'success',
+              duration: 2000
+            })
+        }
+      })
+    },
     sortChange(param){
         this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c")+1);
         this.getList();
@@ -505,8 +605,15 @@ export default {
           this.dialogAdvVisiable=true;
        }
     },
-    show_memo:function(memos){
-         this.dialogMemoVisiable=true;
+    show_memo:function(row){
+         this.row_cur=row;
+         this.gt.FranAppId=row.id;
+         this.gt.userId=this.userid;
+         this.dialogMemo.title='与"'+row.name+'"沟通记录中...'
+         this.dialogMemo.Visiable=true;
+         gtList(this.gt.FranAppId).then((res)=>{
+            console.log(res)
+         })
     },
     noting(){
          console.log("I'm noting")
@@ -932,7 +1039,11 @@ export default {
   .clearfix:after {
     clear: both
   }
- 
- 
+  .label{
+    width:400px;height:50px; word-wrap: break-word;
+  }
+  .gt{
+     margin-top:2%
+  }
  
 </style>
