@@ -11,16 +11,8 @@ export default{
     },
     computed: {
         ...mapGetters([
-          'account'
-        ]),
-        isAdmin(){
-            return this.account&&this.account.acl
-                   &&(this.account.acl.indexOf("中心运营总监")!=-1
-                   ||this.account.acl.indexOf("系统管理员")!=-1
-                   ||this.account.acl.indexOf("顾问")!=-1
-                   ||this.account.acl.indexOf("市场")!=-1
-                   );
-        }
+          'userid'
+        ])
     },
     methods:{
         getLs(gym){
@@ -130,6 +122,26 @@ export default{
                   self.users=response.data;
                 }
           });
+        },
+        download(url){
+            var x=new XMLHttpRequest();
+                x.open("GET", url, true);
+                x.responseType = 'blob';
+                x.onload=function(e){
+                    var url = window.URL.createObjectURL(x.response)
+                    var a = document.createElement('a');
+                    a.href = url
+                    a.download = ''
+                    a.click()
+                }
+                x.send();
+        },
+        join(arr){
+            if(arr&&arr[0]){
+               if(typeof arr[0]=='string') return "'"+arr.join("','")+"'";
+               return arr.join(",");
+            }
+            return '';
         }
 
     }

@@ -9,16 +9,43 @@ let sql_client_upt = "declare @data varchar(max)='@form';with s as(select top 1 
 let sql_client_crt = "declare @data varchar(max)='@form';insert into crm_zdytable_238592_27128_238592(org_id,cust_id,crm_syrID,crmzdy_85213104/*follower*/,create_time,crm_name/*phone*/,crmzdy_82068889/*name*/,crmzdy_82068921/*othername*/,crmzdy_82068894/*sex*/,crmzdy_82068891/*birth*/,crmzdy_82068892/*email*/,crmzdy_82068895/*addr*/,crmzdy_82068918/*industry*/,crmzdy_82068893/*group*/,crmzdy_82068919/*label*/,crmzdy_82068896/*memo*/,crmzdy_82326474/*gym*/,crmzdy_82068917/*channel*/)";
 sql_client_crt += "select top 1 238592,'@iduser','@iduser',JSON_query(@data,'$.ls_selected'),getdate(),JSON_VALUE(@data,'$.phone'),JSON_VALUE(@data,'$.client'),JSON_VALUE(@data,'$.kid'),JSON_VALUE(@data,'$.sex'),JSON_VALUE(@data,'$.birth'),JSON_VALUE(@data,'$.email'),JSON_VALUE(@data,'$.addr'),JSON_VALUE(@data,'$.industry'),JSON_VALUE(@data,'$.group_selected'),JSON_VALUE(@data,'$.label'),JSON_VALUE(@data,'$.memo'),JSON_query(@data,'$.gym_selected'),JSON_query(@data,'$.channel') from crm_yh_238592_view;";
 sql_client_crt += "select '@sql' sql,0 errmsg for json path,without_array_wrapper";
+const url_oss_del="https://api.thelittlegym.com.cn/oss/del";
+const url_oss_list="https://api.thelittlegym.com.cn/oss";
 
- 
+export function getOss(FranAppId) {
+  return request({
+    url: url_oss_list,
+    method: 'get',
+    params:{FranAppId}
+  })
+}
+
+export function delOss(data) {
+  return request({
+    url: url_oss_del,
+    method: 'post',
+    params:data
+  })
+}
+export function getChannels(){
+    return request({
+      url: "/api/listFranAppChannel",
+      method: 'get',
+    })
+}
 
 export function fetchList(cxt) {
+  let advSearch2=cxt.advSearch2Where.join(" and ");
+  let advSearch=cxt.advSearchWhere.join(" and ");
+  
   let params=cxt.listQuery;
   let option={pageSize:params.limit,pageNum:params.page,
      keyWord:cxt.search.value.trim(),sort:params.sort,
      todayFollow:cxt.todayFollow?'1':'0',
+     advSearch:advSearch,advSearch2:advSearch2,
      dtBegin:params.dtzx&&params.dtzx[0],
-     dtEnd:params.dtzx&&params.dtzx[1]};
+     dtEnd:params.dtzx&&params.dtzx[1]
+  };
   return request({
     url: "/api/listFranApp",
     method: 'post',

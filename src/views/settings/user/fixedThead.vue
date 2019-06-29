@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
       <div class="filter-container">
-          <el-button type="primary" class="create" size="small"  @click="toDialog('create')">新建帐户</el-button>
+          <el-button v-if="isAdmin" type="primary" class="create" size="small"  @click="toDialog('create')">新建帐户</el-button>
       </div>
-      <el-table :data="users" border fit highlight-current-row size="small" style="width:70%">
+      <el-table :data="usersFilter" border fit highlight-current-row size="small" style="width:70%">
         <el-table-column prop="username" label="帐号名" width="140"></el-table-column>
         <el-table-column prop="fullname" label="姓名" width="140"></el-table-column>
         <el-table-column label="角色" >
@@ -13,14 +13,14 @@
         </el-table-column>
         <el-table-column align="left" :label="$t('table.actions')" width="250">
           <template slot-scope="scope">
-            <el-col :span=6 :offset="1">
+            <el-col :span=6 :offset="1" v-if="isAdmin">
               <el-button type="primary" size="small" @click="toDialog('edit',scope.row)">{{$t('table.edit')}}</el-button>
             </el-col>
             <el-col :span=6>
-              <el-button type="danger" size="small" @click="userDel(scope.row.id)">{{$t('table.delete')}}</el-button>
-            </el-col>
-            <el-col :span=6>
               <el-button type="danger" size="small" @click="toDialog('reset',scope.row)">{{$t('table.resetPwd')}}</el-button>
+            </el-col>
+            <el-col :span=6 v-if="isAdmin">
+              <el-button type="danger" size="small" @click="userDel(scope.row.id)">{{$t('table.delete')}}</el-button>
             </el-col>
           </template>
         </el-table-column>
@@ -86,6 +86,8 @@
 <script>
 import { roleList, userAdd, userDel,userUpdate} from '@/api/user' 
 import { MessageBox, Message } from 'element-ui'
+import { mapGetters } from 'vuex';
+
 var validate_string = (rule, value, callback) => {
   if (!value) {
     callback(new Error(rule.message));
@@ -115,6 +117,18 @@ export default {
      }
   },
   computed:{
+        ...mapGetters([
+          'roles',
+          'isAdmin',
+          'isSuper',
+          'userid'
+        ]),
+        usersFilter(){
+          let self=this;
+          return this.users.filter((u)=>{
+            return u.id==self.userid||self.isAdmin;
+          })
+        },
         userRules(){
           let rule={};
           let type=this.dialogTitle;
@@ -138,7 +152,6 @@ export default {
                     { required: true, message: '请选择权限', trigger: 'change' }
               ]
           }
-         
           return rule;
       }
   },

@@ -243,12 +243,12 @@ export const asyncRouterMap = [
     meta: {
       title: 'excel',
       icon: 'excel',
-      roles:['Admin','Tlgcadmin']
+      roles:['Admin','Tlgcadmin','Manager']
     },
     children: [
-      { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel',roles:[]}},
-      { path: 'export-selected-excel', component: _import('excel/selectExcel'), name: 'selectExcel', meta: { title: 'selectExcel',roles:[] }},
-      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel',icon: 'excel',roles:["Tlgcadmin"] }}
+      { path: 'export-excel', component: _import('excel/exportExcel'), name: 'exportExcel', meta: { title: 'exportExcel',roles:['Admin']}},
+      { path: 'export-selected-excel', component: _import('excel/selectExcel'), name: 'selectExcel', meta: { title: 'selectExcel',roles:['Admin'] }},
+      { path: 'upload-excel', component: _import('excel/uploadExcel'), name: 'uploadExcel', meta: { title: 'uploadExcel',icon: 'excel',roles:["Admin","Tlgcadmin",'Manager'] }}
     ]
   },
 
@@ -287,7 +287,7 @@ export const asyncRouterMap = [
     path: '/settings',
     component: Layout,
     redirect: 'noredirect',
-    meta: { title: 'settings',icon: 'setting',roles: ['Admin','Tlgcadmin']},
+    meta: { title: 'settings',icon: 'setting',roles: ['Admin','Tlgcadmin','Manager']},
     children: [{
       path: 'label',
       component: _import('settings/label'),
@@ -300,7 +300,7 @@ export const asyncRouterMap = [
       meta: {
         title: 'account',
         icon: 'setting',
-        roles: ['Admin','Tlgcadmin'] // or you can only set roles in sub nav
+        roles: ['Admin','Tlgcadmin','Manager'] // or you can only set roles in sub nav
       }
     }]
   },

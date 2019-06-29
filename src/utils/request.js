@@ -24,7 +24,8 @@ service.interceptors.request.use(
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
       //config.headers['X-Token'] = getToken()
-      if(config.url.indexOf("user/info")!=-1)config.params.username=store.getters.name;
+      if(config.url.indexOf("/user/info")!=-1)config.params.username=store.getters.name;
+      if(config.url.indexOf("/label/")!=-1&&config.params)config.params.userid=store.getters.userid;
       if(config.params){
           config.params.token=store.getters.token;
           if(!store.getters.isAdmin)config.params.userid=store.getters.userid;
@@ -56,7 +57,7 @@ service.interceptors.response.use(
 
     // if the custom code is not 20000, it is judged as an error.
     //console.error(res)
-    if (res.code!=0) {
+    if (res.code!=0&&res.code!=200) {
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       if (res.code === -50008 || res.code === -50012 || res.code === -50014) {
         // to re-login

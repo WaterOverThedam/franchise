@@ -69,6 +69,7 @@ export default {
     update:'编辑',
     create:'新建',
     setting:'设置',
+    attachment:'附件',
     followSetting:"跟进设置"
   },
   login: {
@@ -152,6 +153,7 @@ export default {
     channel:"来源渠道", 
     linktime:"预望联系时间",
     nextTime:"计划下次跟进时间",
+    latestTime:"最后沟通时间",
     assign:"分配",
     exit:"退出"
   },
@@ -159,6 +161,9 @@ export default {
     tips: '请点击右上角bug小图标',
     description: '现在的管理后台基本都是spa的形式了，它增强了用户体验，但同时也会增加页面出问题的可能性，可能一个小小的疏忽就导致整个页面的死锁。好在 Vue 官网提供了一个方法来捕获处理异常，你可以在其中进行错误处理或者异常上报。',
     documentation: '文档介绍'
+  },
+  alert:{
+   delete:"删除"
   },
   excel: {
     export: '导出',

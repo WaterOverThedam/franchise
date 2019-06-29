@@ -21,9 +21,9 @@
       </el-col>
        <el-col :span="11">
           <el-col :span="7" :offset="1">
-              <div v-waves   @click="handleSearch">
+              <div v-waves >
                 <el-dropdown  @command="handleMu" split-button type="primary">
-                  <i class="el-icon-search"></i>&nbsp;{{$t('table.search')}}
+                  <i class="el-icon-search"  @click="handleSearch"></i>&nbsp;{{$t('table.search')}}
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
                     </el-dropdown-menu> 
@@ -37,7 +37,7 @@
               <el-button  type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
           </el-col>
           <el-col :span="4" style='margin-left:5px'>
-              <el-button  type="danger"   >{{$t('table.export')}}</el-button>
+              <el-button  type="danger">{{$t('table.export')}}</el-button>
           </el-col>
           <el-col :span="3">
               <el-button  v-if="isSuper" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
@@ -90,6 +90,8 @@
             <span v-text="handleStatus[scope.row.status]"></span>
         </template>
       </el-table-column>
+      
+      <el-table-column  sortable width="95px" prop="latestTime" :label="$t('table.latestTime')"></el-table-column>
       <el-table-column  sortable width="95px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
         
       <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
@@ -180,12 +182,12 @@
             <el-card>
                 <el-row >
                   <el-col :span="4">
-                      <el-form-item label-width="80px" label="添加标签:">
-                        <a href="#" @click.prevent="dialogLabelVisiable=true"><i class="el-icon-edit"></i></a>
+                      <el-form-item label-width="80px" label="沟通标签:">
+                        <a href="#" @click.prevent="toLabel()"><i class="el-icon-edit"></i></a>
                       </el-form-item>
                   </el-col>
                   <el-col :span="8">
-                       <p class="label">xxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxxxxxx,.xxx</p>
+                       <p class="label">{{tutorTags.join(",")}}</p>
                   </el-col>
                 </el-row>
             </el-card>
@@ -212,10 +214,26 @@
                 </el-row>
             </el-card>
             <el-card>
-                <el-alert
-                  title="消息提示的文案"
-                  type="info">
-                </el-alert>
+                <my-alert v-for="(g,index) of gts" :key="g.id" :title="g.title" :description="g.content" 
+                   :close-text="$t('alert.delete')" @close="gtDel(g.id)" v-show="true" :type="index==0?'success':'info'">
+                </my-alert>
+            </el-card>
+            <el-card class="upload">
+                <my-upload
+                  class="upload-demo"
+                  action="https://api.thelittlegym.com.cn/oss/upload"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :before-upload="beforeUpload"
+                  :before-remove="beforeRemove"
+                  :on-success="onSuccess"
+                  :limit="10"
+                  :on-exceed="handleExceed"
+                  :data="{FranAppId:gt.FranAppId}"
+                  :file-list="fileList">
+                  <el-button size="small" type="primary">上传附件</el-button>
+                  <div slot="tip" class="el-upload__tip">一次上传1个文件，且不能最大超过40M</div>
+                </my-upload>
             </el-card>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -224,54 +242,49 @@
     </el-dialog>
 
 
-    <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"> </el-table-column>
-        <el-table-column prop="pv" label="Pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>
-      </span>
+    <el-dialog :title="$t('dialog.attachment')" :visible.sync="dialogFile.visible">
+     <section>
+       <article>
+         <p v-show="isVideo(dialogFile.file.name)"><video controls="controls"><source :src="dialogFile.file.url" type="video/mp4" autobuffer=""></video></p>
+         <p><a @click.prevent="download(dialogFile.file.url)" download title="点击下载" target="_blank">{{dialogFile.file.name}}&nbsp;&nbsp;<svg-icon icon-class="excel" /></a></p>
+       </article>
+     </section>
     </el-dialog>
 
-  <el-dialog title="选择标签" :visible.sync="dialogLabelVisiable">
-      <el-row>
-            <el-card class="box-card">
-      <div slot="header" class="clearfix">
-    <span>客户标签</span>
-    <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
-  </div>
-  <div v-for="o in 4" :key="o" class="text item">
-    {{'列表内容 ' + o }}
-  </div>
-     <div slot="header" class="clearfix">
-                <span>客户标签</span>
-                  <el-popover
-                    placement="bottom"
-                    width="400"
-                    height="500"
-                    v-model="lableVisible">
-                    <el-row  :key="index" v-for="(item,index) of labelGrps">
-                      <div>
-                        <el-checkbox v-model="item.checked" :style="'color:'+color[index%3]">{{item.name}}</el-checkbox>
-                        <i class="el-icon-arrow-up"></i>
-                      </div>
-                      <div>
-                        <el-button  class="btnn" autofocus :disabled="!item.checked" :class="{'color':tag.iscolor,'nocolor':!tag.iscolor}" size="mini" :key="i" v-for="(tag,i) of item.tags"  @click="addTag(index,i)">{{tag.name}}</el-button>
-                      </div>
-                    </el-row>
-                    <div style="text-align: right; margin: 0">
-                      <el-button type="primary" size="mini" @click="saveTage">确定</el-button>
-                      <el-button size="mini" type="text" @click="clearTag">取消</el-button>
-                    </div>
-                    <el-button slot="reference" style="float: right; padding: 3px 50px 3px 5px" type="text" @click="setTag()">添加</el-button>
-                  </el-popover>
-              </div> 
-            </el-card>
-            <el-tag :key="id" v-for="(tag,id) in temp.Tags" closable :disable-transitions="false" @close="handleClose(id)">
-                {{tag.label}}
-            </el-tag>
-      </el-row>
+  <el-dialog title="添加标签" :visible.sync="dialogLabelVisiable">
+     <el-card class="box-card">
+        <el-tag
+          :key="index"
+          v-for="(tag,index) in tutorTags"
+          closable
+          @close="labelDel(tag)"
+          :disable-transitions="false">
+          {{tag}}
+        </el-tag>
+        <!-- <el-input
+          class="input-new-tag"
+          v-if="inputVisible"
+          v-model="inputValue"
+          ref="saveTagInput"
+          size="small"
+          @keyup.enter.native="handleInputConfirm"
+          @blur="handleInputConfirm"
+        >
+        </el-input> -->
+        <el-autocomplete
+            class="input-new-tag"
+            v-if="tag.inputVisible"
+            v-model="tag.inputValue"
+            ref="saveTagInput"
+            size="small"
+            :fetch-suggestions="querySearchAsync"
+            @keyup.enter.native="handleInputConfirm"
+            :trigger-on-focus="false"
+            @select="handleSelect">
+        </el-autocomplete>
+        <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+
+     </el-card>
     </el-dialog> 
  
 
@@ -284,8 +297,8 @@
               </span>
           </el-col>
           <el-col :span="6">
-            <el-select v-model="sift.item" value-key="key" placeholder="字段">
-              <el-option @change="show_input(c.type)"
+            <el-select v-model="sift.item" value-key="key" placeholder="参数" @change="init_input(key)" clearable>
+              <el-option 
                 v-for="c in fieldOpt"
                 :key="c.key"
                 :label="c.label"
@@ -294,7 +307,7 @@
             </el-select>
           </el-col>
           <el-col :span="6">
-            <el-select v-model="sift.opr" placeholder="关系" width="10%">
+            <el-select v-model="sift.opr" placeholder="条件关系" width="10%">
               <el-option
                 v-for="opr in oprOpt"
                 :key="opr.value"
@@ -303,10 +316,10 @@
               </el-option>
             </el-select>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
                <template v-if="sift.item.type&&sift.item.type=='dt'">
                   <el-date-picker  width="50"
-                      v-model="sift.value"
+                      v-model="sift.arr"
                       :picker-options="rangeTimeOps"
                       value-format="yyyy-MM-dd HH:mm:ss"
                       range-separator="-"
@@ -317,6 +330,36 @@
                       align="left" clearable>
                   </el-date-picker>
                </template>
+               <template v-else-if="sift.item.type&&sift.item.type=='follower'">
+                    <el-select v-model="sift.arr" placeholder="跟进人" multiple style="width:120%">
+                        <el-option
+                          v-for="item in tutors"
+                          :key="item.id"
+                          :label="item.fullname"
+                          :value="item.id">
+                        </el-option>
+                    </el-select>
+               </template>               
+               <template v-else-if="sift.item.type&&sift.item.type=='channel'">
+                    <el-select v-model="sift.arr" placeholder="渠道" multiple style="width:120%">
+                        <el-option
+                          v-for="(item,index) in channels"
+                          :key="index"
+                          :label="item"
+                          :value="item">
+                        </el-option>
+                    </el-select>
+               </template>   
+               <template v-else-if="sift.item.type&&sift.item.type=='label'">
+                    <el-select v-model="sift.arr" placeholder="标签" multiple style="width:120%">
+                        <el-option
+                          v-for="(item,index) in tag&&tag.tipList"
+                          :key="index"
+                          :label="item.value"
+                          :value="item.value">
+                        </el-option>
+                    </el-select>
+               </template>   
                <template v-else>
                     <el-input type="text" v-model="sift.value"></el-input>
                </template>
@@ -334,17 +377,24 @@
 </template>
 
 <script>
-import { fetchList, updateFollow, deleteFranApp, updateAssign} from '@/api/client'
+import { fetchList, updateFollow, getChannels, deleteFranApp, updateAssign, getOss, delOss} from '@/api/client'
 import { gtList, gtSave, gtDel } from '@/api/goTong'
-
+import { labelList, labelAdd, labelDel, labeForFranApp } from '@/api/label'
+import myAlert from '@/components/ele/alert'
+import myUpload from '@/components/ele/upload'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import { mapGetters } from 'vuex';
+import $ from 'jquery'
 
 export default {
   name: 'clients',
   directives: {
     waves
+  },
+  components:{
+    myAlert,
+    myUpload
   },
   data() {
     var validate_phone = (rule, value, callback) => {
@@ -365,20 +415,27 @@ export default {
       }  
     };
     return {
-      searchOpts:["高级搜索","标签搜索"],
+      tutorTags: [],
+      tag:{inputVisible: false,inputValue: '',tipList:[]},
+      fileList: [],
+      dialogFile:{visible:false,file:{name:"",url:""}},
+      searchOpts:["高级搜索"],
       advSearchWhere:[],
-      sifts:[{item:{},opr:undefined,value:undefined}],
-      fieldOpt:[{label:"手机",key:"crm_name",type:"string"},{label:"家长姓名",key:"crmzdy_82068889",type:"string"},
-                {label:"孩子",key:"crmzdy_82068921",type:"string"},{label:"渠道",key:"crmzdy_82068917",type:"object"},
-                {label:"跟进人",key:"crmzdy_85213104",type:"object"},{label:"行业",key:"crmzdy_82068918",type:"string"},
-                {label:"家庭住址",key:"crmzdy_82068895",type:"string"},{label:"客户分组",key:"crmzdy_82068893",type:"string"},
-                {label:"新建日期",key:"create_name",type:"dt"},{label:"最近修改时间",key:"update_time",type:"dt"}
+      advSearch2Where:[],
+      sifts:[{item:{},opr:undefined,value:undefined,arr:[]}],
+      fieldOpt:[{label:"跟进人",key:"FollowerID",type:"follower"},
+                {label:"申请区域",key:"address",type:"string"},
+                {label:"最后沟通时间",key:"latestTime",type:"dt"},
+                {label:"渠道",key:"channel",type:"channel"},
+                {label:"标签",key:"id",type:"label"}
               ],
       oprOpt:[{label:"包含",key:"like '%@val%'",type:"string,object"},{label:"不包含",key:"not like '%@val%'",type:"string,object"},
                 {label:"等于",key:"='@val'",type:"string,number"},{label:"不等于",key:"!='@val'",type:"string,number"},
                 {label:"大于等于",key:">='@val'",type:"number"},{label:"小于等于",key:"<='@val'",type:"number"},
                 {label:"大于",key:">'@val'",type:"number"},{label:"小于",key:"<'@val'",type:"number"},
                 {label:"范围内",key:"between '@val1' and '@val2'",type:"dt"},{label:"范围外",key:"not between '@val1' and '@val2'",type:"dt"},
+                {label:"属于",key:"in (@val)",type:"channel,follower"},{label:"不属于",key:"not in (@val)",type:"multi"},
+                {label:"属于",key:"in (select f.FranAppId from TLG_Labels l join TLG_LabelForFraApp f on l.name in (@val) and l.id=f.labelId)",type:"label"} 
             ],
       color:[
           "#5199EB",
@@ -487,8 +544,10 @@ export default {
       pvData:[],
       dialogAssignVisible:false,
       users:[],
+      channels:[],
       FollowerID:undefined,
       gt:{dtGotong:new Date(),content:"",FranAppId:undefined,userId:undefined},
+      gts:[],
       rules: {
           nextTime: [{ required: true, message: '请输选择下次跟进时间', trigger: 'blur' }],
           status: [{ required: true, message: '请选择处理进度', trigger: 'blur' }],
@@ -527,6 +586,12 @@ export default {
     }
   },
   methods: {
+    init_input(index){
+      let sft=this.sifts[index];
+      sft.arr=[];
+      sft.value=undefined;
+      sft.opr=undefined;
+    },
     toMail(addr){
       if(!addr){
         this.$message({
@@ -540,14 +605,10 @@ export default {
         this.dialogMemo.Visiable = false;
     },
     addGt(){
+      let self=this;
       gtSave(this.gt).then((res)=>{
         if(res.code==0){
-            this.$notify({
-              title: '成功',
-              message: '已保存',
-              type: 'success',
-              duration: 2000
-            })
+            self.gtList()
         }
       })
     },
@@ -555,34 +616,34 @@ export default {
         this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c")+1);
         this.getList();
     },
-    tag_select(){
-        if(!this.temp.Tags||this.temp.Tags.length==0) return;
-        var arr_tags=[];
-        this.temp.Tags.map(function(t){
-            arr_tags[t.key]=t.label;
-        })
-        var self=this;
-        var arr=self.labelGrps.map(function(o){
-            if(arr_tags[o.name]){
-               o.tags.map(function(t){
-                 if(arr_tags[o.name]==t.name){
-                    t.iscolor=true;
-                 }
-              })
-            }
-        })
-    },
     genenateSift:function(){
        var self=this;
+       let adv2Key=['latestTime'];
+       self.advSearchWhere=[];
+       self.advSearch2Where=[];
+       let obj;
        self.sifts.forEach(function(s){
-          if(s.value&&!self.isEmpty(s.item)&&s.opr){
-            if(typeof s.value=="object"){
-                self.advSearchWhere.push(s.item.key+" "+s.opr.replace("@val1",s.value[0].trim()).replace("@val2",s.value[1].trim()));
-            }else{
-                self.advSearchWhere.push(s.item.key+" "+s.opr.replace("@val",s.value.trim()));
-            }
+         if(!self.isEmpty(s.item)){
+              //确认对象
+              obj=self.advSearchWhere;
+              if(adv2Key.indexOf(s.item.key)!=-1){
+                 obj=self.advSearch2Where;
+              }
+              //添加
+              if(s.value&&s.opr){
+                  obj.push(s.item.key+" "+s.opr.replace("@val",s.value.trim()));
+              }
+              if(s.arr&&s.arr.length>0&&s.opr){
+                  if(s.opr.indexOf("in")==-1){
+                    obj.push(s.item.key+" "+s.opr.replace("@val1",s.arr[0].trim()).replace("@val2",s.arr[1].trim()));
+                  }else{
+                    obj.push(s.item.key+" "+s.opr.replace("@val",self.join(s.arr)));
+                  }
+              }
           }
        })
+       console.log(self.advSearch2Where)
+       console.log(self.advSearchWhere)
        self.dialogAdvVisiable=false;
        self.getList();
     },
@@ -594,26 +655,65 @@ export default {
         this.sifts.splice(index,1);
       }
     },
-    show_label:function(row){
-       this.temp = Object.assign({}, row) // copy obj
-       this.temp.gym_selected=JSON.parse(this.temp.gym_selected);
-       this.get_tag(this.temp.gym_selected);
-       this.dialogLabelVisiable=true;
-    },
     handleMu:function(m){
+       let self=this;
        if(m=="高级搜索"){
           this.dialogAdvVisiable=true;
+          this.getLabels();
+          getChannels().then((res)=>{
+            if(res.code==0&&res.data){
+                res.data.map((d)=>{
+                    self.channels.push(d.channel);
+                })
+            }
+          })
        }
     },
+    gtList(){
+         let self=this;
+         self.gts=[];
+         gtList(this.gt.FranAppId).then((res)=>{
+           if(res.code==0) self.gts=res.data;
+         })
+    },
+    gtDel(id){
+        let self=this;
+        this.$confirm('删除后不能恢复,是否确认删除?')
+          .then(function() {
+              gtDel(id).then((res)=>{
+                if(res.code==0){
+                    self.gtList();
+                }
+              })
+          }).catch(action => {
+              if(action === 'cancel'){
+                  self.$message({
+                    type: 'info',
+                    message: "已取消操作"
+                  })
+              }
+          }) 
+      return false;
+
+    },
     show_memo:function(row){
+         let self=this;
          this.row_cur=row;
          this.gt.FranAppId=row.id;
          this.gt.userId=this.userid;
          this.dialogMemo.title='与"'+row.name+'"沟通记录中...'
          this.dialogMemo.Visiable=true;
-         gtList(this.gt.FranAppId).then((res)=>{
-            console.log(res)
+         this.gtList();
+         this.getOss(this.gt.FranAppId);
+         self.tutorTags=[];
+         labeForFranApp(this.gt.FranAppId).then((res)=>{
+           if(res.code==0&&res.data){
+             res.data.map(function(d){
+               self.tutorTags.push(d.name);
+             });
+           }
          })
+         
     },
     noting(){
          console.log("I'm noting")
@@ -652,11 +752,6 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.getList()
-    },
-    handleReady(temp){
-      console.log(this.temp.gym_selected);
-      this.getLs(this.temp.gym_selected);
-      this.getChannel();
     },
     resetTemp() {
       this.temp={
@@ -899,40 +994,6 @@ export default {
           });       
         });
       },
-      setTag(){
-        if(this.labelGrps.length>0) return;
-        this.$confirm('请先设置标签, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$router.push({path: '/setting'});
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已放弃'
-          });          
-        });
-      },
-      clearTag(){
-        this.lableVisible = false;
-      },
-      saveTage(){
-        //console.log("save",JSON.stringify(this.Temp))
-        //console.log("save",JSON.stringify(this.labelGrps))
-        this.temp.Tags = this.Temp;
-        this.lableVisible =false;
-      },
-      addTag(index,i){
-        this.labelGrps[index].tags.map(function(t,j){
-          //console.log(i+"||"+j)
-          if(j==i){
-            t.iscolor=!t.iscolor;
-          }else{
-            t.iscolor=false;
-          }
-        }) 
-      },
       submitForm(formName) {
         var self=this;
         self.$refs[formName].validate((valid) => {
@@ -948,19 +1009,7 @@ export default {
         });
       },
       saveUser(formName){
-        var self=this;
-        var sql_createuser = "declare @data varchar(max)=quot;@formquot;;declare @flag int =isnull((select top 1 1 from crm_zdytable_238592_27128_238592_view ec where crm_name=JSON_VALUE(@data,quot;$.phonequot;) and crmzdy_82326474=JSON_VALUE(@data,quot;$.gym_selectedquot;)),0);"
-        if(this.temp.readonly===0){
-           sql_createuser = "update crm_zdytable_238592_27128_238592_view set isdelete=1 where crm_name='@phone';"+sql_createuser
-        }
-        sql_createuser += "insert into crm_zdytable_238592_27128_238592(org_id,cust_id,crm_syrID,create_time,crm_name/*phone*/,crmzdy_82068889/*name*/,crmzdy_82068921/*othername*/,crmzdy_82068894/*sex*/,crmzdy_82068891/*birth*/,crmzdy_82068892/*email*/,crmzdy_82068895/*addr*/,crmzdy_82068918/*industry*/,crmzdy_82068893/*group*/,crmzdy_82068919/*label*/,crmzdy_82068896/*memo*/,crmzdy_82326474/*gym*/,crmzdy_82068917/*channel*/)";
-        sql_createuser += "select top 1 238592,quot;@iduserquot;,JSON_VALUE(@data,quot;$.ls_selectedquot;),getdate(),JSON_VALUE(@data,quot;$.phonequot;),JSON_VALUE(@data,quot;$.namequot;),JSON_VALUE(@data,quot;$.othernamequot;),JSON_VALUE(@data,quot;$.sexquot;),JSON_VALUE(@data,quot;$.birthquot;),JSON_VALUE(@data,quot;$.emailquot;),JSON_VALUE(@data,quot;$.addressquot;),JSON_VALUE(@data,quot;$.industryquot;),JSON_VALUE(@data,quot;$.group_selectedquot;),JSON_VALUE(@data,quot;$.labelquot;),JSON_VALUE(@data,quot;$.memoquot;),JSON_VALUE(@data,quot;$.gym_selectedquot;),JSON_query(@data,quot;$.channelquot;) from crm_yh_238592_view where @flag=0;";
-        sql_createuser += "select case when @flag=1 then 2 else 0 end errmsg for json path";
 
-        //console.log(JSON.stringify(obj));return;
-        sql_createuser = sql_createuser.replace('@form',JSON.stringify(self.tempConv()));
-        sql_createuser = sql_createuser.replace('@phone',self.temp.phone);
-    
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
@@ -969,14 +1018,129 @@ export default {
         this.temp.gym_selected=JSON.stringify(this.account.gyms[0]);
         this.temp.ls_selected=this.account.id;
       },
-      getChannel(){
-        self=this;
-        fetchChannel(this).then(response =>{
-           if(typeof response.data=='object'){
-              self.channels=response.data
-           }
+      handleRemove(file, fileList) {
+         let name=file.url.split("/");
+         name=name[name.length-1];
+         let FranAppId=this.gt.FranAppId
+         delOss({name,FranAppId})
+      },
+      getOss(FranAppId){
+          let self=this;
+          self.fileList=[];
+          getOss(FranAppId).then((res)=>{
+             if(res.code=200&&res.data){
+                res.data.map((d)=>{
+                   let url="http://static.thelittlegym.com.cn/"+d.name;
+                   let name=d.name.split("/");
+                   self.fileList.push({name:name[name.length-1],url:url})
+                })
+             }
+             //console.log(self.fileList);
+          });
+      },
+      onSuccess(res,file,fileList){
+        if(res.code==200){
+          fileList[fileList.length - 1].url=res['oss-request-url'];
+        }
+      },
+      handlePreview(file) {
+         let self=this;
+         this.dialogFile.visible=true;
+         this.$nextTick(function(){
+           self.dialogFile.file=file;
+         })
+      },
+      handleExceed(files, fileList) {
+        //console.log(JSON.stringify(files))
+        this.$message.warning(`当前限制选择 8 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      beforeUpload(file){
+          let _this = this;
+          const isgt40M = file.size / 1024 / 1024 < 40;
+          if (!isgt40M) {
+            _this.$message.error('文件大小不能超过40MB!');
+          }
+          if (isgt40M){
+            return true;
+          } else {
+            return false;
+          }
+      },
+      isVideo(file){
+          let ext=file.split(".")[1];
+          let support_form=['wav', 'mp3', 'ogg', 'acc', 'webm'];
+          if(file&&support_form.indexOf(ext.toLowerCase())!=-1){
+            return true;
+          }
+          return false;
+      },
+      showInput() {
+          this.tag.inputVisible = true;
+          this.$nextTick(_ => {
+            this.$refs.saveTagInput.$refs.input.focus();
+          });
+      },
+      toLabel(){
+          this.dialogLabelVisiable=true;
+          this.getLabels();
+      },
+      getLabels(){
+          let self=this;
+          labelList().then((res)=>{
+              if(res.code==0)self.tag.tipList=res.data;
+          })
+      },
+      handleInputConfirm() {
+         this.labelAdd(this.tag.inputValue)
+      },
+      querySearchAsync(queryString, cb) {
+          let programList = this.tag.tipList;
+          let results = queryString ? programList.filter((item)=>{
+              return item.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1;
+          }): programList;
+          clearTimeout(this.timeout);
+          this.timeout = setTimeout(() => {
+            cb(results);
+          }, 1000 * Math.random());
+            
+      },
+      handleSelect(item) {
+          this.tag.inputValue = item.value;
+          this.labelAdd(this.tag.inputValue)
+      },
+      labelAdd(name){
+          let self=this;
+          if(this.tutorTags.indexOf(name)!=-1){
+              this.$message({
+                  showClose: true,
+                  message: "标签已存在",
+                  type: 'error'
+              });
+              this.tag.inputVisible = false;
+              this.tag.inputValue = '';
+              return;
+          }
+          labelAdd({name,FranAppId:this.gt.FranAppId}).then((res)=>{
+              if(res.code==0){
+                  self.tutorTags.push(name);
+              }
+          });
+          this.tag.inputVisible = false;
+          this.tag.inputValue = '';
+      },
+      labelDel(name){
+        let self=this;
+        labelDel({name,FranAppId:this.gt.FranAppId}).then((res)=>{
+          if(res.code==0){
+              let i =self.tutorTags.indexOf(name);
+              self.tutorTags.splice(i,1);
+          }
         })
       }
+
   },
   mounted(){
     this.getList();
@@ -1045,5 +1209,29 @@ export default {
   .gt{
      margin-top:2%
   }
- 
+
+  article>p>a{
+    text-decoration:underline !important;
+    color:#C00017 !important; 
+  }
+  article>p{
+    text-align:center;
+  }
+
+  .el-tag + .el-tag {
+    margin-right: 10px;
+    float:left;
+  }
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 130px;
+    margin-left: 10px;
+    vertical-align: bottom;
+  }
 </style>

@@ -26,9 +26,9 @@ export default {
     // if (!this.roles.includes('admin')) {
     //   this.r = 'editorDashboard'
     // }
-    if (!this.roles.some(role => role&&role.toLowerCase().indexOf("admin") >= 0)) {
-      this.currentRole = 'editorDashboard'
-    }
+    // if (!this.roles.some(role => role&&role.toLowerCase().indexOf("admin") >= 0)) {
+    //   this.currentRole = 'editorDashboard'
+    // }
   }
 }
 </script>
