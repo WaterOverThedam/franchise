@@ -16,7 +16,7 @@
             <el-col :span=6 :offset="1" v-if="isAdmin">
               <el-button type="primary" size="small" @click="toDialog('edit',scope.row)">{{$t('table.edit')}}</el-button>
             </el-col>
-            <el-col :span=6>
+            <el-col :span=9>
               <el-button type="danger" size="small" @click="toDialog('reset',scope.row)">{{$t('table.resetPwd')}}</el-button>
             </el-col>
             <el-col :span=6 v-if="isAdmin">
@@ -146,7 +146,7 @@ export default {
           if(type!="重置密码"){
               rule.fullname= [
                     { required: true, message: '请输入姓名', trigger: 'blur' },
-                    { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
+                    { min: 2, message: '长度至少 2 个字符', trigger: 'blur' }
               ];
               rule.roleId=[
                     { required: true, message: '请选择权限', trigger: 'change' }

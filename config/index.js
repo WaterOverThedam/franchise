@@ -10,11 +10,34 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
     port: 9527, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    //其实很简单的，只要配置这个参数就可以了
+    proxyTable: {
+        '/api': {
+            target: 'http://localhost:8080',
+            //pathRewrite: {'^/api' : ''},
+            secure: false
+        },
+        '/user': {
+          target: 'http://localhost:8080',
+          //pathRewrite: {'^/api' : ''},
+          secure: false
+        },
+        '/gt': {
+          target: 'http://localhost:8080',
+          //pathRewrite: {'^/api' : ''},
+          secure: false
+        },
+        '/label': {
+          target: 'http://localhost:8080',
+          //pathRewrite: {'^/api' : ''},
+          changeOrigin: true,
+          secure: false
+        }
+    },
     autoOpenBrowser: true,
     errorOverlay: true,
     notifyOnErrors: false,

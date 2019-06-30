@@ -34,12 +34,12 @@ export function getChannels(){
     })
 }
 
-export function fetchList(cxt) {
+export function fetchList(cxt,pageSize) {
   let advSearch2=cxt.advSearch2Where.join(" and ");
   let advSearch=cxt.advSearchWhere.join(" and ");
-  
   let params=cxt.listQuery;
-  let option={pageSize:params.limit,pageNum:params.page,
+  pageSize=pageSize||params.limit;
+  let option={pageSize:pageSize,pageNum:params.page,
      keyWord:cxt.search.value.trim(),sort:params.sort,
      todayFollow:cxt.todayFollow?'1':'0',
      advSearch:advSearch,advSearch2:advSearch2,
@@ -88,16 +88,28 @@ export function fetchChannel(cxt){
   })
 }
 
-export function createClient(cxt){
-  console.log(cxt.account)
-  var sql = sql_client_crt;
-  sql=sql.replace("@form",JSON.stringify(cxt.temp))
-  sql=sql.replace("@iduser",cxt.account&&cxt.account.id||'')
-
+export function createClient(query){
   return request({
-    baseURL: requestUrl,
+    url: "/api/saveAppli",
     method: 'get',
-    params: {sql1:sql}
+    params: query
+  })
+}
+
+export function createClients(sql){
+  return request({
+   // baseURL:'',
+    url: "/api/saveFranApps",
+    method: 'post',
+    data:{sql:sql}
+  })
+}
+
+export function updateClient(query){
+  return request({
+    url: "/api/updateFranApp",
+    method: 'get',
+    params: query
   })
 }
 
@@ -110,15 +122,4 @@ export function syncOASIS(sql){
   })
 }
 
-export function updateClient(cxt){
-  var sql = sql_client_upt;
-  sql=sql.replace("@form",JSON.stringify(cxt.temp))
-  sql=sql.replace("@iduser",cxt.account&&cxt.account.id||'')
-
-  return request({
-    baseURL: requestUrl,
-    method: 'get',
-    params: {sql1:sql}
-  })
-}
 

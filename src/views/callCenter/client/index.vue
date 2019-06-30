@@ -2,7 +2,7 @@
   <div class="app-container calendar-list-container">
      <el-row>
        <el-col :span="13">
-          <el-col :span="16">
+          <el-col :span="15">
               <el-date-picker  
                   v-model="listQuery.dtzx"
                   :picker-options="rangeTimeOps"
@@ -16,7 +16,7 @@
               </el-date-picker>
           </el-col>
           <el-col :span="8">
-              <el-input style='margin-left:2px' :placeholder="search.placeholder" v-model="search.value" clearable></el-input>
+              <el-input style='margin-left:2px' :placeholder="search.placeholder" v-model="search.value" @keyup.enter.native="handleSearch"></el-input>
           </el-col>
       </el-col>
        <el-col :span="11">
@@ -31,13 +31,13 @@
               </div>
           </el-col>
           <el-col :span="4">
-              <el-button  type="primary" @click="handleSearch" >{{$t('table.create')}}</el-button>
+              <el-button  type="primary" @click="toClient('create')" >{{$t('table.create')}}</el-button>
           </el-col>
           <el-col :span="4">
               <el-button  type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
           </el-col>
           <el-col :span="4" style='margin-left:5px'>
-              <el-button  type="danger">{{$t('table.export')}}</el-button>
+              <el-button  type="danger" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button>
           </el-col>
           <el-col :span="3">
               <el-button  v-if="isSuper" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
@@ -45,9 +45,6 @@
        </el-col>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </el-row>
-    <!-- <el-row>
-      <el-col :span="24"> </el-col>
-    </el-row> -->
     <el-form>
       <el-form-item label="筛选条件:">
           <el-checkbox v-model="todayFollow">仅显示今天需要跟进的</el-checkbox>
@@ -58,7 +55,11 @@
       <el-table-column v-if="selection.show" type="selection" width="55"></el-table-column>
       <el-table-column fixed type="index" width="50"></el-table-column>
       <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
-      <el-table-column fixed width="80px" align="center" prop="name" :label="$t('table.name')"></el-table-column>
+      <el-table-column fixed width="80px" align="center" :label="$t('table.name')">
+        <template slot-scope="scope" >
+            <a href="#" @click.prevent="toClient('edit',scope.row)">{{scope.row.name}}</a>
+        </template>
+      </el-table-column>
       <el-table-column fixed width="150px" align="center" :label="$t('table.phone')">
         <template slot-scope="scope" @click="calling">
             <span v-html="scope.row.phone"></span>
@@ -80,7 +81,8 @@
       <el-table-column  width="60px" :label="$t('table.linktime')">
         <template slot-scope="scope" @click="calling">
             <span v-if="scope.row.linktime==1">上午</span>
-            <span v-else>下午</span>
+            <span v-else-if="scope.row.linktime==2">下午</span>
+            <span v-else>不确定</span>
         </template>
       </el-table-column>
       <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
@@ -103,16 +105,6 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <!-- <el-table-column fixed="left" width="60px" :label="$t('table.label')">
-        <template slot-scope="scope">
-          <el-tooltip  effect="light" :content="scope.row.label||'标签待定'" placement="right" >
-            <div class="icon-item" @click="show_label(scope.row)">
-              <svg-icon icon-class="form" />
-            </div>
-          </el-tooltip>
-        </template>
-      </el-table-column> -->
-
       <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-col :span=24>
@@ -121,7 +113,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <div class="pagination-container">
       <el-pagination background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total">
       </el-pagination>
@@ -210,7 +201,6 @@
                           <el-button @click="addGt()" type="primary" icon="el-icon-plus" round>{{$t("table.add")}}</el-button>
                       </el-form-item>
                     </el-col>
-                    
                 </el-row>
             </el-card>
             <el-card>
@@ -261,16 +251,6 @@
           :disable-transitions="false">
           {{tag}}
         </el-tag>
-        <!-- <el-input
-          class="input-new-tag"
-          v-if="inputVisible"
-          v-model="inputValue"
-          ref="saveTagInput"
-          size="small"
-          @keyup.enter.native="handleInputConfirm"
-          @blur="handleInputConfirm"
-        >
-        </el-input> -->
         <el-autocomplete
             class="input-new-tag"
             v-if="tag.inputVisible"
@@ -283,7 +263,6 @@
             @select="handleSelect">
         </el-autocomplete>
         <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-
      </el-card>
     </el-dialog> 
  
@@ -372,12 +351,81 @@
       </span>
     </el-dialog>
  
-
+     <el-dialog :title="dialogClient.title" :visible.sync="dialogClient.visible">
+          <el-form :rules="clientRules" ref="clientForm" :model="client" label-position="center" >
+                <el-row>
+                  <el-col :span="10">
+                      <el-form-item label-width="100px" label="申请人:" prop="name">
+                        <el-input style='min-width:150px;' v-model="client.name"></el-input>
+                      </el-form-item>
+                  </el-col>
+                  <el-col :offset="1" :span="10">
+                      <el-form-item  label-width="100px" label="申请日期:" prop="dt">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="client.dt" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
+                      </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="10">
+                      <el-form-item  label-width="100px" label="手机号:" prop="phone">
+                            <el-input placeholder="" style='min-width:150px;' v-model="client.phone"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :offset="1" :span="10">
+                      <el-form-item label-width="100px" label="邮箱:"  prop="email">
+                            <el-input   style='min-width:150px;' v-model="client.email"></el-input>
+                      </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="10">
+                      <el-form-item  label-width="100px" label="申请区域" prop="address">
+                            <el-input  style='min-width:150px;' v-model="client.address"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :offset="1" :span="10">
+                      <el-form-item label-width="100px" label="来源渠道"  prop="channel">
+                            <el-input   style='min-width:150px;' v-model="client.channel"></el-input>
+                      </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="10">
+                      <el-form-item  label-width="100px" label="期望联系时间" prop="linktime">
+                         <el-select v-model="client.linktime" placeholder="请选择">
+                           <el-option
+                             v-for="item in [{id:1,name:'上午'},{id:2,name:'下午'}]"
+                             :key="item.id"
+                             :label="item.name"
+                             :value="item.id">
+                           </el-option>
+                         </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :offset="1" :span="10">
+                      <el-form-item label-width="100px" label="跟进人"  prop="followerID">
+                         <el-select v-model="client.followerID" disabled  placeholder="未分配">
+                           <el-option
+                             v-for="item in tutors"
+                             :key="item.id"
+                             :label="item.fullname"
+                             :value="item.id">
+                           </el-option>
+                         </el-select>
+                      </el-form-item>
+                    </el-col>
+                </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogClient.visible = false">{{$t('table.cancel')}}</el-button>
+            <el-button type="primary" @click="handleSave()">{{$t('table.save')}}</el-button>
+          </div>
+      </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, updateFollow, getChannels, deleteFranApp, updateAssign, getOss, delOss} from '@/api/client'
+import { fetchList, updateFollow, getChannels, deleteFranApp, updateAssign, getOss, delOss, createClient, updateClient} from '@/api/client'
 import { gtList, gtSave, gtDel } from '@/api/goTong'
 import { labelList, labelAdd, labelDel, labeForFranApp } from '@/api/label'
 import myAlert from '@/components/ele/alert'
@@ -444,6 +492,7 @@ export default {
           "#9568CE"
         ],
       tableKey: 0,
+      exportList:null,
       list: null,
       total: null,
       listLoading: true,
@@ -517,17 +566,20 @@ export default {
       },
       importanceOptions: [1, 2, 3,4],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      labelGrps:[],
-      clientlGrps:[],
-      temp: {
+      dialogClient:{title:'',visible:false},
+      client: {
           id: undefined,
-          importance: 1,
+          followerID:undefined,
           channel: undefined,
           email:undefined,
           phone:undefined,
           status:undefined,
-          nextTime:undefined
+          nextTime:undefined,
+          linktime:undefined,
+          name:undefined,
+          dt:undefined
       },
+      temp:{},
       row_cur:{},
       todayFollow:false,
       selection:{show:false,ids:[]},
@@ -551,6 +603,14 @@ export default {
       rules: {
           nextTime: [{ required: true, message: '请输选择下次跟进时间', trigger: 'blur' }],
           status: [{ required: true, message: '请选择处理进度', trigger: 'blur' }],
+      },
+      clientRules:{
+          channel: [{required: true, message: '请输入来源渠道', trigger: 'blur' }],
+          phone: [{required: true, message: '请输入手机号', trigger: 'blur' }],
+          name: [{required: true, message: '请输入申请人姓名', trigger: 'blur' }],
+          inktime: [{required: true, message: '请输入期望联系时间', trigger: 'blur' }],
+          address: [{required: true, message: '请输入申请区域', trigger: 'blur' }],
+          dt: [{required: true, message: '请输入申请日期', trigger: 'blur' }]
       },
       downloadLoading: false
     }
@@ -642,8 +702,6 @@ export default {
               }
           }
        })
-       console.log(self.advSearch2Where)
-       console.log(self.advSearchWhere)
        self.dialogAdvVisiable=false;
        self.getList();
     },
@@ -754,59 +812,85 @@ export default {
       this.getList()
     },
     resetTemp() {
-      this.temp={
+      this.client={
           id: undefined,
-          importance: 1,
-          client: undefined,
-          kid:undefined,
+          followerID:undefined,
           channel: undefined,
-          industry: undefined,
-          sex: undefined,
-          memo: undefined,
           email:undefined,
           phone:undefined,
-          addr:undefined,
-          group_selected:undefined,
-          gym_selected:undefined,
-          ls_selected:undefined
-      };
+          status:undefined,
+          nextTime:undefined,
+          linktime:undefined,
+          name:undefined,
+          dt:undefined
+      }
     },
-    handleCreate() {
-      this.resetTemp()
-      if(!this.isAdmin) this.temp.ls_selected=this.account.self;
-      if(!this.temp.gym_selected) this.temp.gym_selected=this.gym;
-      this.handleReady(this.temp);
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
+    toClient(type,row) {
+      if(type=='create'){
+         this.resetTemp();
+         this.client.followerID=this.userid;
+         this.dialogClient.title = '新建';
+         this.handleSave=this.handleCreate;
+      }else{
+         this.temp = Object.assign({},row) //原数据备份
+         this.client=row;
+         if(row.linktime==0)this.client.linktime=undefined;
+         if(row.followerID==0)this.client.followerID=undefined;
+         this.dialogClient.title = '编辑';
+         this.handleSave=this.handleUpdate;
+      }
+      this.dialogClient.visible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['clientForm'].clearValidate()
       })
     },
-    createData() {
+    handleCreate() {
       let self=this;
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['clientForm'].validate((valid) => {
         if (valid) {
-          createClient(this).then((res) => {
-            self.list.unshift(this.temp)
-            self.dialogFormVisible = false
-            self.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
+          createClient({
+            UserName:this.client.name,UserPhone:this.client.phone,
+            UserEmail:this.client.email,Time:this.client.linktime,
+            Channel:this.client.channel,City:this.client.address,
+            dt:this.client.dt,followerId:this.client.followerID
+          }).then((res) => {
+            if(res.code==0){
+                self.dialogClient.visible = false
+                self.$notify({
+                  title: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+            }
           })
         }
       })
     },
     handleUpdate(row) {
-         this.temp = Object.assign({}, row) // copy obj
+      let self=this;
+      console.log(self.temp)
+      this.$refs['clientForm'].validate((valid) => {
+        if (valid) {
+          updateClient(this.client).then((res) => {
+            if(res.code==0){
+                self.dialogClient.visible = false
+                self.$notify({
+                  title: '更新成功',
+                  type: 'success',
+                  duration: 2000
+                })
+            }else{
+                self.client=self.temp;
+            }
+          })
+        }
+      })
     },
     toFollow(row){
          this.row_cur=row;
-         this.temp.id=row.id;
-         this.temp.status=row.status.toString();
-         this.temp.nextTime=row.nextTime;
+         this.client.id=row.id;
+         this.client.status=row.status.toString();
+         this.client.nextTime=row.nextTime;
          this.dialogFormVisible=true;
     },
     updateData(data) {
@@ -935,16 +1019,23 @@ export default {
     },
     handleDownload() {
       this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal, this.list)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
+      fetchList(this,10000).then(response => {
+        if(response.code==0&&response.data&&response.data.length>0){
+          this.exportList = response.data;
+           
+          import('@/vendor/Export2Excel').then(excel => {
+            const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','来源渠道','最近沟通时间','最近沟通内容','跟进人']
+            const filterVal = ['name', 'phone','email','address', 'dt', 'channel','latestTime','memo','follower']
+            const data = this.formatJson(filterVal, this.exportList);
+            const time=this.fmtDt("yyyy-MM-dd-hh:mm:ss")(new Date);
+            excel.export_json_to_excel({
+              header: tHeader,
+              data,
+              filename: '加盟申请清单_'+time
+            })
+            this.downloadLoading = false
+          })
+        }
       })
     },
     formatJson(filterVal, jsonData) {
@@ -955,45 +1046,7 @@ export default {
           return v[j]
         }
       }))
-    },
-    tempConv(){
-        var label_string = JSON.stringify(this.temp.Tags);
-        var obj=this.extend({label:label_string,birth:this.fmtDate(this.temp.birth)},this.temp);
-        return obj;
-      },
-      tag_select(){
-        if(!this.temp.Tags||this.temp.Tags.length==0) return;
-        var arr_tags=[];
-        this.temp.Tags.map(function(t){
-            arr_tags[t.key]=t.label;
-        })
-        var self=this;
-        var arr=self.labelGrps.map(function(o){
-            if(arr_tags[o.name]){
-               o.tags.map(function(t){
-                 if(arr_tags[o.name]==t.name){
-                    t.iscolor=true;
-                 }
-              })
-            }
-        })
-      },
-      goEdit(){
-        if(!this.readonly) return true;
-        this.$confirm('是否要进入可编辑状态？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.readonly=false;
-          this.temp.readonly=0;
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已放弃'
-          });       
-        });
-      },
+     },
       submitForm(formName) {
         var self=this;
         self.$refs[formName].validate((valid) => {
@@ -1209,7 +1262,9 @@ export default {
   .gt{
      margin-top:2%
   }
-
+  .cell>a{
+     text-decoration:underline !important;
+  }
   article>p>a{
     text-decoration:underline !important;
     color:#C00017 !important; 

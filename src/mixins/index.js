@@ -76,7 +76,7 @@ export default{
              var self=this;
              var sql="";
              data.map(function(d){
-                sql += "select "+(typeof d =='object'?self.obj2Arr(d).join("','"):"'"+d+"' name")+" union all ";
+                sql += "select "+(typeof d =='object'?self.obj2Arr(d).join(","):"'"+d+"' name")+" union all ";
              })
              return  sql.slice(0,-10);
         },

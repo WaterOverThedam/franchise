@@ -7,7 +7,7 @@ const getters = {
   token: state => state.user.token,
   avatar: state => state.user.avatar,
   name: state => state.user.name,
-  isAdmin: state => state.user.roles.some(role => role.indexOf('admin')>0||role.indexOf('Admin')>0),
+  isAdmin: state => state.user.roles.some(role => role.indexOf('admin')>-1||role.indexOf('Admin')>-1),
   isSuper: state => state.user.roles.some(role => role=='admin'||role=='Admin'),
   userid: state => state.user.id,
   introduction: state => state.user.introduction,

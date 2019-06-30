@@ -155,7 +155,8 @@ export default {
     nextTime:"计划下次跟进时间",
     latestTime:"最后沟通时间",
     assign:"分配",
-    exit:"退出"
+    exit:"退出",
+    import:"导入"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
@@ -167,6 +168,7 @@ export default {
   },
   excel: {
     export: '导出',
+    sync:'同步导入',
     selectedExport: '导出已选择项',
     placeholder: '请输入文件名(默认excel-list)'
   },

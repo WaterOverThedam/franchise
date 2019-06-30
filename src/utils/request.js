@@ -8,16 +8,22 @@ axios.defaults.retry = 4;
 axios.defaults.retryDelay = 1000;
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_API, // url = base url + request url
+  baseURL: process.env.ENV_CONFIG=='dev'?'':process.env.BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 7000 ,// request timeout
   retry:4,
-  retryDelay: 1000
+  retryDelay: 1000,
+  mode: 'no-cors',  
+
 })
 
 // request interceptor
 service.interceptors.request.use(
   config => {
+  //  config.headers['Access-Control-Allow-Origin']="*"  ;
+
+   // console.error(config)
+   // config.data=JSON.parse(config.data)
     // do something before request is sent
     if (store.getters.token) {
       // let each request carry token

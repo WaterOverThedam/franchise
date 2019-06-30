@@ -54,7 +54,7 @@ export default {
       list: null,
       listLoading: true,
       downloadLoading: false,
-      filename: '',
+      filename: 'test',
       autoWidth: true
     }
   },
