@@ -22,8 +22,8 @@
        <el-col :span="11">
           <el-col :span="7" :offset="1">
               <div v-waves >
-                <el-dropdown  @command="handleMu" split-button type="primary">
-                  <i class="el-icon-search"  @click="handleSearch"></i>&nbsp;{{$t('table.search')}}
+                <el-dropdown @click="handleSearch" @command="handleMu" split-button type="primary">
+                  <i class="el-icon-search" ></i>&nbsp;{{$t('table.search')}}
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
                     </el-dropdown-menu> 
