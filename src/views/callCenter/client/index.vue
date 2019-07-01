@@ -123,9 +123,7 @@
       <el-form :rules="rules" ref="followForm" :model="temp" label-position="left" >
         <el-form-item label="当前跟进进度" prop="status">
           <el-radio-group v-model="temp.status">
-            <el-radio label="1">待处理</el-radio>
-            <el-radio label="2">处理中</el-radio>
-            <el-radio label="3">已完结</el-radio>
+            <el-radio v-for="item of statusArr" :key="item.val" :label="item.val">{{item.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="下次跟进时间" prop="nextTime">
@@ -277,12 +275,13 @@
               </span>
           </el-col>
           <el-col :span="6">
-            <el-select v-model="sift.item" value-key="key" placeholder="参数" @change="init_input(key)" clearable>
+            <el-select v-model="sift.item" value-key="key" placeholder="搜索项" @change="init_input(key)" clearable>
               <el-option 
                 v-for="c in fieldOpt"
                 :key="c.key"
                 :label="c.label"
-                :value="c" v-show="c.show">
+                :value="c" 
+                v-show="c.show">
               </el-option>
             </el-select>
           </el-col>
@@ -340,8 +339,18 @@
                         </el-option>
                     </el-select>
                </template>   
+               <template v-else-if="sift.item.type&&sift.item.type=='status'">
+                    <el-select v-model="sift.arr" placeholder="跟进状态" multiple style="width:120%">
+                        <el-option
+                          v-for="(item,index) in statusArr"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.val">
+                        </el-option>
+                    </el-select>
+               </template> 
                <template v-else>
-                    <el-input type="text" v-model="sift.value"></el-input>
+                    <el-input type="text" v-model="sift.value" placeholder="值"></el-input>
                </template>
           </el-col>
         </el-row>
@@ -465,6 +474,7 @@ export default {
     };
     return {
       tutorTags: [],
+      statusArr:[{val:1,label:'待处理'},{val:2,label:'处理中'},{val:3,label:'已完结'}],
       tag:{inputVisible: false,inputValue: '',tipList:[]},
       fileList: [],
       dialogFile:{visible:false,file:{name:"",url:""}},
@@ -472,18 +482,12 @@ export default {
       advSearchWhere:[],
       advSearch2Where:[],
       sifts:[{item:{},opr:undefined,value:undefined,arr:[]}],
-      fieldOpt:[{label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
-                {label:"申请区域",key:"address",type:"string",show:true},
-                {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
-                {label:"渠道",key:"channel",type:"channel",show:true},
-                {label:"标签",key:"id",type:"label",show:true}
-              ],
       oprOpt:[{label:"包含",key:"like '%@val%'",type:"string,object"},{label:"不包含",key:"not like '%@val%'",type:"string,object"},
                 {label:"等于",key:"='@val'",type:"string,number"},{label:"不等于",key:"!='@val'",type:"string,number"},
                 {label:"大于等于",key:">='@val'",type:"number"},{label:"小于等于",key:"<='@val'",type:"number"},
                 {label:"大于",key:">'@val'",type:"number"},{label:"小于",key:"<'@val'",type:"number"},
                 {label:"范围内",key:"between '@val1' and '@val2'",type:"dt"},{label:"范围外",key:"not between '@val1' and '@val2'",type:"dt"},
-                {label:"属于",key:"in (@val)",type:"channel,follower"},{label:"不属于",key:"not in (@val)",type:"multi"},
+                {label:"属于",key:"in (@val)",type:"channel,follower,status"},{label:"不属于",key:"not in (@val)",type:"channel,follower,status"},
                 {label:"属于",key:"in (select f.FranAppId from TLG_Labels l join TLG_LabelForFraApp f on l.name in (@val) and l.id=f.labelId)",type:"label"} 
             ],
       color:[
@@ -635,6 +639,15 @@ export default {
     }
   },
   computed:{
+     fieldOpt(){
+        return [{label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
+                {label:"跟进状态",key:"status",type:"status",show:true},
+                {label:"申请区域",key:"address",type:"string",show:true},
+                {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
+                {label:"渠道",key:"channel",type:"channel",show:true},
+                {label:"标签",key:"id",type:"label",show:true}
+              ]
+     },
     ...mapGetters([
       'roles',
       'isAdmin',
