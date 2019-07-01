@@ -29,7 +29,7 @@
           <el-form :rules="userRules" ref="userForm" :model="user" label-position="center" >
                 <el-row v-if="dialogTitle=='新建用户'">
                   <el-col :span="8">
-                      <el-form-item label-width="80px" label="帐户号:" prop="username">
+                      <el-form-item label-width="80px" label="帐户名:" prop="username">
                         <el-input   style='min-width:150px;' v-model="user.username"></el-input>
                       </el-form-item>
                   </el-col>

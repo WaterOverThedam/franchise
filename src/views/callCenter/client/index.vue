@@ -33,8 +33,8 @@
           <el-col :span="4">
               <el-button  type="primary" @click="toClient('create')" >{{$t('table.create')}}</el-button>
           </el-col>
-          <el-col :span="4">
-              <el-button  type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
+          <el-col  v-if="isAdmin" :span="4">
+              <el-button type="primary" @click="toAssign()" >{{$t('table.assign')}}</el-button>
           </el-col>
           <el-col :span="4" style='margin-left:5px'>
               <el-button  type="danger" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button>
@@ -48,6 +48,7 @@
     <el-form>
       <el-form-item label="筛选条件:">
           <el-checkbox v-model="todayFollow">仅显示今天需要跟进的</el-checkbox>
+          <el-checkbox v-model="unAllocate" v-show="isAdmin">仅显示未分配的</el-checkbox>
       </el-form-item>
     </el-form>
     <el-table ref="clientTable" @sort-change="sortChange"	@selection-change="handleSelectionChange" :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
@@ -148,7 +149,7 @@
                 <el-row>
                   <el-col :offset="3">
                     <el-form-item label="跟进人">
-                      <el-select v-model="FollowerID" placeholder="请选择">
+                      <el-select v-model="followerID" placeholder="请选择">
                         <el-option
                           v-for="item in tutors"
                           :key="item.id"
@@ -281,7 +282,7 @@
                 v-for="c in fieldOpt"
                 :key="c.key"
                 :label="c.label"
-                :value="c">
+                :value="c" v-show="c.show">
               </el-option>
             </el-select>
           </el-col>
@@ -471,11 +472,11 @@ export default {
       advSearchWhere:[],
       advSearch2Where:[],
       sifts:[{item:{},opr:undefined,value:undefined,arr:[]}],
-      fieldOpt:[{label:"跟进人",key:"FollowerID",type:"follower"},
-                {label:"申请区域",key:"address",type:"string"},
-                {label:"最后沟通时间",key:"latestTime",type:"dt"},
-                {label:"渠道",key:"channel",type:"channel"},
-                {label:"标签",key:"id",type:"label"}
+      fieldOpt:[{label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
+                {label:"申请区域",key:"address",type:"string",show:true},
+                {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
+                {label:"渠道",key:"channel",type:"channel",show:true},
+                {label:"标签",key:"id",type:"label",show:true}
               ],
       oprOpt:[{label:"包含",key:"like '%@val%'",type:"string,object"},{label:"不包含",key:"not like '%@val%'",type:"string,object"},
                 {label:"等于",key:"='@val'",type:"string,number"},{label:"不等于",key:"!='@val'",type:"string,number"},
@@ -582,6 +583,7 @@ export default {
       temp:{},
       row_cur:{},
       todayFollow:false,
+      unAllocate:false,
       selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
       handleStatus:{"1":"待处理","2":"处理中","2":"已完结"},
@@ -597,7 +599,7 @@ export default {
       dialogAssignVisible:false,
       users:[],
       channels:[],
-      FollowerID:undefined,
+      followerID:undefined,
       gt:{dtGotong:new Date(),content:"",FranAppId:undefined,userId:undefined},
       gts:[],
       rules: {
@@ -923,7 +925,7 @@ export default {
     },
     handleAssign(){
         let self=this;
-        if(!this.FollowerID){
+        if(!this.followerID){
             self.$notify({
                 title: '错误',
                 message: "请选择要分配的老师",
@@ -1195,9 +1197,18 @@ export default {
       }
 
   },
+  watch:{
+     todayFollow(){
+       this.handleSearch();
+     },
+     unAllocate(){
+       this.handleSearch();
+     }
+  },
   mounted(){
     this.getList();
     this.getUsers();
+    console.log(this.isAdmin)
   }
 }
 </script>

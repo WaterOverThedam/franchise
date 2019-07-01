@@ -42,6 +42,7 @@ export function fetchList(cxt,pageSize) {
   let option={pageSize:pageSize,pageNum:params.page,
      keyWord:cxt.search.value.trim(),sort:params.sort,
      todayFollow:cxt.todayFollow?'1':'0',
+     unAllocate:cxt.unAllocate?'1':'0',
      advSearch:advSearch,advSearch2:advSearch2,
      dtBegin:params.dtzx&&params.dtzx[0],
      dtEnd:params.dtzx&&params.dtzx[1]
