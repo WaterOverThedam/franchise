@@ -945,12 +945,12 @@ export default {
                 type: 'error',
                 duration: 2000
             })
+            return;
         }
         updateAssign(this).then(function(res){
           if(res.code==0){
               self.$notify({
-                title: '成功',
-                message: '分配成功',
+                title: '分配成功',
                 type: 'success',
                 duration: 2000
               })
@@ -999,8 +999,7 @@ export default {
       deleteFranApp(this).then(function(res){
          if(res.code==0){
             self.$notify({
-              title: '成功',
-              message: '删除成功',
+              title: '删除成功',
               type: 'success',
               duration: 2000
             })

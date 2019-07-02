@@ -1,7 +1,8 @@
 'use strict'
 // Template version: 1.2.6
 // see http://vuejs-templates.github.io/webpack for documentation.
-
+const dev = require("./dev.env.js");
+const targetUrl=dev.BASE_API.replace(/'/g,"").replace(/"/g,"")
 const path = require('path')
 
 module.exports = {
@@ -17,22 +18,22 @@ module.exports = {
     //其实很简单的，只要配置这个参数就可以了
     proxyTable: {
         '/api': {
-            target: 'http://localhost:8080',
+            target: targetUrl,
             //pathRewrite: {'^/api' : ''},
             secure: false
         },
         '/user': {
-          target: 'http://localhost:8080',
+          target: targetUrl,
           //pathRewrite: {'^/api' : ''},
           secure: false
         },
         '/gt': {
-          target: 'http://localhost:8080',
+          target: targetUrl,
           //pathRewrite: {'^/api' : ''},
           secure: false
         },
         '/label': {
-          target: 'http://localhost:8080',
+          target: targetUrl,
           //pathRewrite: {'^/api' : ''},
           changeOrigin: true,
           secure: false
