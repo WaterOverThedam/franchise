@@ -22,7 +22,7 @@
        <el-col :span="11">
           <el-col :span="7" :offset="1">
               <div v-waves >
-                <el-dropdown @click="handleSearch" @command="handleMu" split-button type="primary">
+                <el-dropdown  @click="handleSearch" @command="handleMu" split-button type="primary">
                   <i class="el-icon-search" ></i>&nbsp;{{$t('table.search')}}
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item v-for="item in searchOpts" :key="item" :command="item" v-text="item" ></el-dropdown-item>
@@ -120,15 +120,15 @@
     </div>
 
     <el-dialog :title="$t('dialog.followSetting')" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="followForm" :model="temp" label-position="left" >
+      <el-form :rules="rules" ref="followForm" :model="client" label-position="left" >
         <el-form-item label="当前跟进进度" prop="status">
-          <el-radio-group v-model="temp.status">
-            <el-radio v-for="item of statusArr" :key="item.val" :label="item.val">{{item.label}}</el-radio>
+          <el-radio-group v-model="client.status">
+            <el-radio v-for="(item,key,index) in handleStatus" :key="index+1" :label="index+1">{{item}}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="下次跟进时间" prop="nextTime">
             <el-date-picker
-              v-model="temp.nextTime"
+              v-model="client.nextTime"
               type="date"
               placeholder="选择日期"
               value-format="yyyy-MM-dd"
@@ -138,7 +138,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="updateData(temp)">{{$t('table.save')}}</el-button>
+        <el-button type="primary" @click="updateData(client)">{{$t('table.save')}}</el-button>
       </div>
     </el-dialog>
 
@@ -342,10 +342,10 @@
                <template v-else-if="sift.item.type&&sift.item.type=='status'">
                     <el-select v-model="sift.arr" placeholder="跟进状态" multiple style="width:120%">
                         <el-option
-                          v-for="(item,index) in statusArr"
+                          v-for="(item,key,index) in handleStatus"
                           :key="index"
-                          :label="item.label"
-                          :value="item.val">
+                          :label="item"
+                          :value="key">
                         </el-option>
                     </el-select>
                </template> 
@@ -474,7 +474,6 @@ export default {
     };
     return {
       tutorTags: [],
-      statusArr:[{val:1,label:'待处理'},{val:2,label:'处理中'},{val:3,label:'已完结'}],
       tag:{inputVisible: false,inputValue: '',tipList:[]},
       fileList: [],
       dialogFile:{visible:false,file:{name:"",url:""}},
@@ -590,7 +589,7 @@ export default {
       unAllocate:false,
       selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
-      handleStatus:{"1":"待处理","2":"处理中","2":"已完结"},
+      handleStatus:{"1":"待处理","2":"处理中","3":"已完结"},
       importanceOptions: [1, 2, 3,4],
       dialogFormVisible: false,
       dialogMemo: {title:"沟通记录",Visiable: false},
@@ -607,14 +606,14 @@ export default {
       gt:{dtGotong:new Date(),content:"",FranAppId:undefined,userId:undefined},
       gts:[],
       rules: {
-          nextTime: [{ required: true, message: '请输选择下次跟进时间', trigger: 'blur' }],
+          nextTime: [{ required: false, message: '请输选择下次跟进时间', trigger: 'blur' }],
           status: [{ required: true, message: '请选择处理进度', trigger: 'blur' }],
       },
       clientRules:{
           channel: [{required: true, message: '请输入来源渠道', trigger: 'blur' }],
           phone: [{required: true, message: '请输入手机号', trigger: 'blur' }],
           name: [{required: true, message: '请输入申请人姓名', trigger: 'blur' }],
-          inktime: [{required: true, message: '请输入期望联系时间', trigger: 'blur' }],
+          linktime: [{required: true, message: '请输入期望联系时间', trigger: 'blur' }],
           address: [{required: true, message: '请输入申请区域', trigger: 'blur' }],
           dt: [{required: true, message: '请输入申请日期', trigger: 'blur' }]
       },
@@ -723,7 +722,7 @@ export default {
     dealSift:function(index){
       if(index==0){
         if(this.sifts.length>this.fieldOpt.length) return;
-        this.sifts.push({item:{},opr:'',value:undefined});
+        this.sifts.push({item:{},opr:'',value:undefined,arr:[]});
       }else{
         this.sifts.splice(index,1);
       }
@@ -864,26 +863,27 @@ export default {
       this.$refs['clientForm'].validate((valid) => {
         if (valid) {
           createClient({
-            UserName:this.client.name,UserPhone:this.client.phone,
-            UserEmail:this.client.email,Time:this.client.linktime,
-            Channel:this.client.channel,City:this.client.address,
-            dt:this.client.dt,followerId:this.client.followerID
+              UserName:this.client.name,UserPhone:this.client.phone,
+              UserEmail:this.client.email,Time:this.client.linktime,
+              Channel:this.client.channel,City:this.client.address,
+              dt:this.client.dt,followerId:this.client.followerID
           }).then((res) => {
-            if(res.code==0){
-                self.dialogClient.visible = false
-                self.$notify({
-                  title: '创建成功',
-                  type: 'success',
-                  duration: 2000
-                })
-            }
+              if(res.code==0){
+                  self.dialogClient.visible = false
+                  self.$notify({
+                    title: '创建成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+              }else{
+                  this.client=this.temp;
+              }
           })
         }
       })
     },
     handleUpdate(row) {
       let self=this;
-      console.log(self.temp)
       this.$refs['clientForm'].validate((valid) => {
         if (valid) {
           updateClient(this.client).then((res) => {
@@ -904,7 +904,7 @@ export default {
     toFollow(row){
          this.row_cur=row;
          this.client.id=row.id;
-         this.client.status=row.status.toString();
+         this.client.status=row.status;
          this.client.nextTime=row.nextTime;
          this.dialogFormVisible=true;
     },
