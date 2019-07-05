@@ -142,8 +142,16 @@ export default{
                return arr.join(",");
             }
             return '';
+        },
+        formatJson(filterVal, jsonData) {
+          return jsonData.map(v => filterVal.map(j => {
+            if (j === 'timestamp') {
+              return parseTime(v[j])
+            } else {
+              return v[j]
+            }
+          }))
         }
-
     }
     
 }

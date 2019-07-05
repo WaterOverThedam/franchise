@@ -14,7 +14,6 @@ export function gtSave(gt) {
     url: '/gt/save',
     method: 'get',
     params: gt
-
   })
 }
 

@@ -68,7 +68,6 @@ export default {
       
         this.list = items
         this.listLoading = false
-         
  
     },
     handleDownload() {

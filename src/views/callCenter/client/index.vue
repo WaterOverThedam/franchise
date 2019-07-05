@@ -45,75 +45,88 @@
        </el-col>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </el-row>
-    <el-form>
-      <el-form-item label="筛选条件:">
-          <el-checkbox v-model="todayFollow">仅显示今天需要跟进的</el-checkbox>
-          <el-checkbox v-model="unAllocate" v-show="isAdmin">仅显示未分配的</el-checkbox>
-      </el-form-item>
-    </el-form>
-    <el-table ref="clientTable" @sort-change="sortChange"	@selection-change="handleSelectionChange" :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
-      style="width: 100%">
-      <el-table-column v-if="selection.show" type="selection" width="55"></el-table-column>
-      <el-table-column fixed type="index" width="50"></el-table-column>
-      <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
-      <el-table-column fixed width="80px" align="center" :label="$t('table.name')">
-        <template slot-scope="scope" >
-            <a href="#" @click.prevent="toClient('edit',scope.row)">{{scope.row.name}}</a>
-        </template>
-      </el-table-column>
-      <el-table-column fixed width="150px" align="center" :label="$t('table.phone')">
-        <template slot-scope="scope" @click="calling">
-            <span v-html="scope.row.phone"></span>
-            <!-- <el-tooltip  effect="dark" content="与客户电话沟通" placement="bottom" > -->
-             <span class="icon-item"><i class="el-icon-mobile-phone"></i></span>
-            <!-- </el-tooltip> -->
-        </template>
-      </el-table-column>
-      <el-table-column  width="50px" align="center"  :label="$t('table.email')">
-        <template slot-scope="scope">
-          <el-tooltip  effect="light" :content="scope.row.email|empty" placement="top" >
-            <div class="icon-item" @click="toMail(scope.row.emai)">
-              <svg-icon icon-class="email"/>
-            </div>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
-      <el-table-column  width="60px" :label="$t('table.linktime')">
-        <template slot-scope="scope" @click="calling">
-            <span v-if="scope.row.linktime==1">上午</span>
-            <span v-else-if="scope.row.linktime==2">下午</span>
-            <span v-else>不确定</span>
-        </template>
-      </el-table-column>
-      <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
-      <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
-      <el-table-column  :label="$t('table.status')">
-        <template slot-scope="scope" @click="calling">
-            <span v-text="handleStatus[scope.row.status]"></span>
-        </template>
-      </el-table-column>
-      
-      <el-table-column  sortable width="95px" prop="latestTime" :label="$t('table.latestTime')"></el-table-column>
-      <el-table-column  sortable width="95px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
+    <el-row>
+        <el-form >
+          <el-form-item class="filter-container" label="筛选条件:">
+            <el-col :span="4">
+              <el-checkbox v-model="todayFollow">仅显示今天需要跟进的</el-checkbox>
+            </el-col>   
+            <el-col :span="3" v-if="isAdmin">  
+              <el-checkbox v-model="unAllocate">仅显示未分配的</el-checkbox>
+            </el-col>   
+            <el-col :span="6">  
+              <el-checkbox-group v-model="statusList">
+                <el-checkbox :key="index" :label="index" v-for="(val,index) in handleStatus">{{val}}</el-checkbox>
+              </el-checkbox-group>
+            </el-col>
+          </el-form-item>
+        </el-form>
+    </el-row>
+    <el-row>
+      <el-table size="mini" ref="clientTable" @sort-change="sortChange"	@selection-change="handleSelectionChange" :key='tableKey' height="510" :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+        style="width: 100%">
+        <el-table-column v-if="selection.show" type="selection" width="55"></el-table-column>
+        <el-table-column fixed type="index" width="50"></el-table-column>
+        <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
+        <el-table-column fixed width="80px" align="center" :label="$t('table.name')">
+          <template slot-scope="scope" >
+              <a href="#" @click.prevent="toClient('edit',scope.row)">{{scope.row.name}}</a>
+          </template>
+        </el-table-column>
+        <el-table-column fixed width="150px" align="center" :label="$t('table.phone')">
+          <template slot-scope="scope" @click="calling">
+              <span v-html="scope.row.phone"></span>
+              <!-- <el-tooltip  effect="dark" content="与客户电话沟通" placement="bottom" > -->
+              <span class="icon-item"><i class="el-icon-mobile-phone"></i></span>
+              <!-- </el-tooltip> -->
+          </template>
+        </el-table-column>
+        <el-table-column  width="50px" align="center"  :label="$t('table.email')">
+          <template slot-scope="scope">
+            <el-tooltip  effect="light" :content="scope.row.email|empty" placement="top" >
+              <div class="icon-item" @click="toMail(scope.row.emai)">
+                <svg-icon icon-class="email"/>
+              </div>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
+        <el-table-column  width="60px" :label="$t('table.linktime')">
+          <template slot-scope="scope" @click="calling">
+              <span v-if="scope.row.linktime==1">上午</span>
+              <span v-else-if="scope.row.linktime==2">下午</span>
+              <span v-else>不确定</span>
+          </template>
+        </el-table-column>
+        <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
+        <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
+        <el-table-column  :label="$t('table.status')">
+          <template slot-scope="scope" @click="calling">
+              <span v-text="handleStatus[scope.row.status]"></span>
+          </template>
+        </el-table-column>
         
-      <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
-        <template slot-scope="scope" @click="noting">
-          <el-tooltip  effect="light" :content="!scope.row.memo?'点击记录沟通信息':scope.row.memo" placement="left" >
-            <div class="icon-item" @click="show_memo(scope.row)">
-              <svg-icon icon-class="form" />
-            </div>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-col :span=24>
-             <el-button type="default" size="small" @click="toFollow(scope.row)">{{$t('table.follow')}}</el-button>
-          </el-col>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column  sortable width="85px" prop="latestTime" :label="$t('table.latestTime')"></el-table-column>
+        <el-table-column  sortable width="85px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
+          
+        <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
+          <template slot-scope="scope" @click="noting">
+            <el-tooltip  effect="light" :content="!scope.row.memo?'点击记录沟通信息':scope.row.memo" placement="left" >
+              <div class="icon-item" @click="show_memo(scope.row)">
+                <svg-icon icon-class="form" />
+              </div>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column fixed="right" align="center" :label="$t('table.actions')" class-name="small-padding fixed-width">
+          <template slot-scope="scope">
+            <el-col :span=24>
+              <el-button type="default" size="small" @click="toFollow(scope.row)">{{$t('table.follow')}}</el-button>
+            </el-col>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-row>
     <div class="pagination-container">
       <el-pagination background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total">
       </el-pagination>
@@ -150,7 +163,7 @@
                       <el-select v-model="followerID" placeholder="请选择">
                         <el-option
                           v-for="item in tutors"
-                          :key="item.id"
+                          :key="item.id" v-show="item.isdelete==0"
                           :label="item.fullname"
                           :value="item.id">
                         </el-option>
@@ -235,6 +248,12 @@
      <section>
        <article>
          <p v-show="isVideo(dialogFile.file.name)"><video controls="controls"><source :src="dialogFile.file.url" type="video/mp4" autobuffer=""></video></p>
+         <p v-show="isImg(dialogFile.file.name)">
+           <el-popover placement="right" title="" trigger="hover">
+              <img :src="dialogFile.file.url"  style="max-height: 650px;max-width: 800px"/>
+              <img slot="reference" :src="dialogFile.file.url" :alt="dialogFile.file.url" style="max-height: 150px;max-width: 200px">
+           </el-popover>
+         </p>
          <p><a @click.prevent="download(dialogFile.file.url)" download title="点击下载" target="_blank">{{dialogFile.file.name}}&nbsp;&nbsp;<svg-icon icon-class="excel" /></a></p>
        </article>
      </section>
@@ -313,7 +332,7 @@
                     <el-select v-model="sift.arr" placeholder="跟进人" multiple style="width:120%">
                         <el-option
                           v-for="item in tutors"
-                          :key="item.id"
+                          :key="item.id" v-show="item.isdelete==0||isSuper"
                           :label="item.fullname"
                           :value="item.id">
                         </el-option>
@@ -322,10 +341,10 @@
                <template v-else-if="sift.item.type&&sift.item.type=='channel'">
                     <el-select v-model="sift.arr" placeholder="渠道" multiple style="width:120%">
                         <el-option
-                          v-for="(item,index) in channels"
-                          :key="index"
-                          :label="item"
-                          :value="item">
+                          v-for="(item,index) of channels"
+                          :key="index" v-show="item.isdelete==0||isSuper"
+                          :label="item.name"
+                          :value="item.name">
                         </el-option>
                     </el-select>
                </template>   
@@ -365,6 +384,15 @@
           <el-form :rules="clientRules" ref="clientForm" :model="client" label-position="center" >
                 <el-row>
                   <el-col :span="10">
+                      <el-form-item label-width="100px" label="微信名:" prop="wechatName">
+                        <el-input style='min-width:150px;' v-model="client.wechatName"></el-input>
+                      </el-form-item>
+                  </el-col>
+                  <el-col :offset="1" :span="10">
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="10">
                       <el-form-item label-width="100px" label="申请人:" prop="name">
                         <el-input style='min-width:150px;' v-model="client.name"></el-input>
                       </el-form-item>
@@ -395,13 +423,20 @@
                     </el-col>
                     <el-col :offset="1" :span="10">
                       <el-form-item label-width="100px" label="来源渠道"  prop="channel">
-                            <el-input   style='min-width:150px;' v-model="client.channel"></el-input>
+                         <el-select v-model="client.channel" placeholder="请选择">
+                           <el-option
+                             v-for="item of channels"
+                             :key="item.id" v-show="item.isdelete==0"
+                             :label="item.name"
+                             :value="item.name">
+                           </el-option>
+                         </el-select>
                       </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="10">
-                      <el-form-item  label-width="100px" label="期望联系时间" prop="linktime">
+                      <el-form-item  label-width="110px" label="期望联系时间" prop="linktime">
                          <el-select v-model="client.linktime" placeholder="请选择">
                            <el-option
                              v-for="item in [{id:1,name:'上午'},{id:2,name:'下午'}]"
@@ -414,10 +449,10 @@
                     </el-col>
                     <el-col :offset="1" :span="10">
                       <el-form-item label-width="100px" label="跟进人"  prop="followerID">
-                         <el-select v-model="client.followerID" disabled  placeholder="未分配">
+                         <el-select v-model="client.followerID" :disabled="!isSuper"  placeholder="未分配">
                            <el-option
                              v-for="item in tutors"
-                             :key="item.id"
+                             :key="item.id" v-show="item.isdelete==0"
                              :label="item.fullname"
                              :value="item.id">
                            </el-option>
@@ -474,6 +509,7 @@ export default {
     };
     return {
       tutorTags: [],
+      statusList: [],
       tag:{inputVisible: false,inputValue: '',tipList:[]},
       fileList: [],
       dialogFile:{visible:false,file:{name:"",url:""}},
@@ -581,7 +617,8 @@ export default {
           nextTime:undefined,
           linktime:undefined,
           name:undefined,
-          dt:undefined
+          dt:undefined,
+          wechatName:undefined
       },
       temp:{},
       row_cur:{},
@@ -639,12 +676,13 @@ export default {
   },
   computed:{
      fieldOpt(){
-        return [{label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
-                {label:"跟进状态",key:"status",type:"status",show:true},
+        return [
+                {label:"渠道",key:"channel",type:"channel",show:true},
+                {label:"标签",key:"id",type:"label",show:true},
                 {label:"申请区域",key:"address",type:"string",show:true},
                 {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
-                {label:"渠道",key:"channel",type:"channel",show:true},
-                {label:"标签",key:"id",type:"label",show:true}
+                {label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
+                {label:"跟进状态",key:"status",type:"status",show:true}
               ]
      },
     ...mapGetters([
@@ -654,8 +692,10 @@ export default {
       'userid'
     ]),
     tutors(){
+      let selft=this;
       return this.users.filter(function(u){
-          return u.fullname.indexOf("管理员")==-1;
+         //非管理员user
+          return u.fullname.indexOf("管理员")==-1||self.isSuper;
       })
     }
   },
@@ -694,6 +734,11 @@ export default {
        var self=this;
        let adv2Key=['latestTime'];
        self.advSearchWhere=[];
+    
+       if(self.statusList.length>0){
+          self.advSearchWhere.push("status in ("+self.statusList.join(",")+")");
+       }
+ 
        self.advSearch2Where=[];
        let obj;
        self.sifts.forEach(function(s){
@@ -714,6 +759,7 @@ export default {
                     obj.push(s.item.key+" "+s.opr.replace("@val",self.join(s.arr)));
                   }
               }
+
           }
        })
        self.dialogAdvVisiable=false;
@@ -732,13 +778,6 @@ export default {
        if(m=="高级搜索"){
           this.dialogAdvVisiable=true;
           this.getLabels();
-          getChannels().then((res)=>{
-            if(res.code==0&&res.data){
-                res.data.map((d)=>{
-                    self.channels.push(d.channel);
-                })
-            }
-          })
        }
     },
     gtList(){
@@ -811,19 +850,19 @@ export default {
     },
     handleSearch(){
       this.listQuery.page = 1
-      this.getList()
+      this.genenateSift()
     },
     handleFilter() {
       this.listQuery.page = 1
-      this.getList()
+      this.genenateSift()
     },
     handleSizeChange(val) {
       this.listQuery.limit = val
-      this.getList()
+      this.genenateSift()
     },
     handleCurrentChange(val) {
       this.listQuery.page = val
-      this.getList()
+      this.genenateSift()
     },
     resetTemp() {
       this.client={
@@ -1036,7 +1075,6 @@ export default {
       fetchList(this,10000).then(response => {
         if(response.code==0&&response.data&&response.data.length>0){
           this.exportList = response.data;
-           
           import('@/vendor/Export2Excel').then(excel => {
             const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','来源渠道','最近沟通时间','最近沟通内容','跟进人']
             const filterVal = ['name', 'phone','email','address', 'dt', 'channel','latestTime','memo','follower']
@@ -1061,7 +1099,7 @@ export default {
         }
       }))
      },
-      submitForm(formName) {
+     submitForm(formName) {
         var self=this;
         self.$refs[formName].validate((valid) => {
           if (valid) {
@@ -1144,6 +1182,14 @@ export default {
           }
           return false;
       },
+      isImg(file){
+          let ext=file.split(".")[1];
+          let support_form=['gif', 'png', 'bmp' ,'jpg'];
+          if(file&&support_form.indexOf(ext.toLowerCase())!=-1){
+            return true;
+          }
+          return false;
+      },
       showInput() {
           this.tag.inputVisible = true;
           this.$nextTick(_ => {
@@ -1215,12 +1261,20 @@ export default {
      },
      unAllocate(){
        this.handleSearch();
+     },
+     statusList(){
+       this.handleSearch();
      }
   },
   mounted(){
+    let self=this;
     this.getList();
     this.getUsers();
-    console.log(this.isAdmin)
+    getChannels().then((res)=>{
+      if(res.code==0&&res.data){ 
+          self.channels=res.data;
+      }
+    })
   }
 }
 </script>
@@ -1243,8 +1297,7 @@ export default {
       color: #909399;
       border-radius: 0;
     }
-
-
+ 
  .color{
     color:#409eff;
     background-color: #ecf5ff;
@@ -1265,7 +1318,6 @@ export default {
     border-bottom: none;
     border-right: none;
     position: relative;
-   
   }
   .btnn{
       margin: 10px 5px 5px 10px !important;
@@ -1311,5 +1363,9 @@ export default {
     width: 130px;
     margin-left: 10px;
     vertical-align: bottom;
+  }
+  .filter-container{
+    margin-top: 12px;
+    margin-bottom: 0;
   }
 </style>

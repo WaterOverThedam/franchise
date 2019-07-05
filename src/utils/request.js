@@ -8,8 +8,8 @@ axios.defaults.retry = 4;
 axios.defaults.retryDelay = 1000;
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.ENV_CONFIG=='dev'?'':process.env.BASE_API, // url = baseUrl + request url; baseUrl为空，可以用[代理]
-  //baseURL: process.env.BASE_API, // url = base url + request url
+  //baseURL: process.env.ENV_CONFIG=='dev'?'':process.env.BASE_API, // url = baseUrl + request url; baseUrl为空，可以用[代理]
+  baseURL: process.env.BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 7000 ,// request timeout
   retry:4,

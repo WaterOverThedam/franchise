@@ -4,6 +4,7 @@ export default {
     clients:"客户",
     settings: '系统设置',
     account:"帐户管理",
+    dictionary:"字典信息维护",
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',
@@ -105,6 +106,7 @@ export default {
     dragTips1: '默认顺序',
     dragTips2: '拖拽后顺序',
     title: '标题',
+    definition : '名称',
     importance: '质量评估',
     type: '类型',
     remark: '点评',
@@ -157,6 +159,11 @@ export default {
     assign:"分配",
     exit:"退出",
     import:"导入"
+  },
+  filter:{
+    content:"搜索内容",
+    table:"选择字典表",
+    search:"搜索"
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

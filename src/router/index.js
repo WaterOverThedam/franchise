@@ -289,20 +289,22 @@ export const asyncRouterMap = [
     redirect: 'noredirect',
     meta: { title: 'settings',icon: 'setting',roles: ['Admin','Tlgcadmin','Manager']},
     children: [{
-      path: 'label',
-      component: _import('settings/label'),
-      name: 'lebel',
-      meta: { title: 'label',roles:[]}
-    },{
       path: 'account',
       component: _import('settings/user/index'),
       name: 'account',
       meta: {
         title: 'account',
-        icon: 'setting',
+        icon: 'user',
         roles: ['Admin','Tlgcadmin','Manager'] // or you can only set roles in sub nav
       }
-    }]
+    },
+    {
+      path: 'dictionary',
+      component: _import('settings/dictionary'),
+      name: 'dictionary',
+      meta: { title: 'dictionary',icon:"documentation",roles:['Admin','Tlgcadmin']}
+    }
+  ]
   },
 
   { path: '*', redirect: '/404', hidden: true }

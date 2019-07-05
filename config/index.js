@@ -37,6 +37,12 @@ module.exports = {
           //pathRewrite: {'^/api' : ''},
           changeOrigin: true,
           secure: false
+        },
+        '/dic': {
+          target: targetUrl,
+          //pathRewrite: {'^/api' : ''},
+          changeOrigin: true,
+          secure: false
         }
     },
     autoOpenBrowser: true,

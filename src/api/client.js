@@ -29,7 +29,7 @@ export function delOss(data) {
 }
 export function getChannels(){
     return request({
-      url: "/api/listFranAppChannel",
+      url: "/dic/channel/list",
       method: 'get',
     })
 }
