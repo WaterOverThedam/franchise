@@ -81,7 +81,8 @@
               <!-- </el-tooltip> -->
           </template>
         </el-table-column>
-        <el-table-column  width="50px" align="center"  :label="$t('table.email')">
+        <el-table-column  width="100px" align="center" prop="wechatName" :label="$t('table.wechatName')"></el-table-column>
+        <el-table-column  width="50px"  align="center"  :label="$t('table.email')">
           <template slot-scope="scope">
             <el-tooltip  effect="light" :content="scope.row.email|empty" placement="top" >
               <div class="icon-item" @click="toMail(scope.row.emai)">
@@ -162,8 +163,8 @@
                     <el-form-item label="跟进人">
                       <el-select v-model="followerID" placeholder="请选择">
                         <el-option
-                          v-for="item in tutors"
-                          :key="item.id" v-show="item.isdelete==0"
+                          v-for="item in users"
+                          :key="item.id" v-show="isTutors(item)"
                           :label="item.fullname"
                           :value="item.id">
                         </el-option>
@@ -331,8 +332,8 @@
                <template v-else-if="sift.item.type&&sift.item.type=='follower'">
                     <el-select v-model="sift.arr" placeholder="跟进人" multiple style="width:120%">
                         <el-option
-                          v-for="item in tutors"
-                          :key="item.id" v-show="item.isdelete==0||isSuper"
+                          v-for="item in users"
+                          :key="item.id" v-show="isTutors(item)"
                           :label="item.fullname"
                           :value="item.id">
                         </el-option>
@@ -451,8 +452,8 @@
                       <el-form-item label-width="100px" label="跟进人"  prop="followerID">
                          <el-select v-model="client.followerID" :disabled="!isSuper"  placeholder="未分配">
                            <el-option
-                             v-for="item in tutors"
-                             :key="item.id" v-show="item.isdelete==0"
+                             v-for="item in users"
+                             :key="item.id" v-show="isTutors(item)"
                              :label="item.fullname"
                              :value="item.id">
                            </el-option>
@@ -462,8 +463,8 @@
                 </el-row>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogClient.visible = false">{{$t('table.cancel')}}</el-button>
-            <el-button type="primary" @click="handleSave()">{{$t('table.save')}}</el-button>
+            <el-button @click="handleSave(false)">{{$t('table.cancel')}}</el-button>
+            <el-button type="primary" @click="handleSave(true)">{{$t('table.save')}}</el-button>
           </div>
       </el-dialog>
   </div>
@@ -611,6 +612,7 @@ export default {
           id: undefined,
           followerID:undefined,
           channel: undefined,
+          wechatName:undefined,
           email:undefined,
           phone:undefined,
           status:undefined,
@@ -682,7 +684,7 @@ export default {
                 {label:"申请区域",key:"address",type:"string",show:true},
                 {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
                 {label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
-                {label:"跟进状态",key:"status",type:"status",show:true}
+               // {label:"跟进状态",key:"status",type:"status",show:true}
               ]
      },
     ...mapGetters([
@@ -690,16 +692,12 @@ export default {
       'isAdmin',
       'isSuper',
       'userid'
-    ]),
-    tutors(){
-      let selft=this;
-      return this.users.filter(function(u){
-         //非管理员user
-          return u.fullname.indexOf("管理员")==-1||self.isSuper;
-      })
-    }
+    ])
   },
   methods: {
+    isTutors(u){
+        return u.isSuper||(u.fullname.indexOf("管理员")==-1&&u.isdelete==0);
+    },
     init_input(index){
       let sft=this.sifts[index];
       sft.arr=[];
@@ -869,6 +867,7 @@ export default {
           id: undefined,
           followerID:undefined,
           channel: undefined,
+          wechatName:undefined,
           email:undefined,
           phone:undefined,
           status:undefined,
@@ -881,6 +880,7 @@ export default {
     toClient(type,row) {
       if(type=='create'){
          this.resetTemp();
+         Object.assign(this.temp,this.client); //初始状态保存
          this.client.followerID=this.userid;
          this.dialogClient.title = '新建';
          this.handleSave=this.handleCreate;
@@ -897,15 +897,19 @@ export default {
         this.$refs['clientForm'].clearValidate()
       })
     },
-    handleCreate() {
+    handleCreate(noCancel) {
       let self=this;
+      if(!noCancel){
+         self.dialogClient.visible = false;
+      }
       this.$refs['clientForm'].validate((valid) => {
         if (valid) {
           createClient({
               UserName:this.client.name,UserPhone:this.client.phone,
               UserEmail:this.client.email,Time:this.client.linktime,
               Channel:this.client.channel,City:this.client.address,
-              dt:this.client.dt,followerId:this.client.followerID
+              dt:this.client.dt,followerId:this.client.followerID,
+              wechatName:this.client.wechatName
           }).then((res) => {
               if(res.code==0){
                   self.dialogClient.visible = false
@@ -914,15 +918,24 @@ export default {
                     type: 'success',
                     duration: 2000
                   })
-              }else{
-                  this.client=this.temp;
-              }
+              } 
+              self.search.value="";
+              self.advSearchWhere=[];
+              self.advSearch2Where=[];
+              self.getList();
+              Object.assign(self.client,self.this.temp);//清空
+               
           })
         }
       })
     },
-    handleUpdate(row) {
+    handleUpdate(noCancel) {
       let self=this;
+      if(!noCancel){
+         Object.assign(this.client,this.temp);
+         self.dialogClient.visible = false;
+         return;
+      }
       this.$refs['clientForm'].validate((valid) => {
         if (valid) {
           updateClient(this.client).then((res) => {
