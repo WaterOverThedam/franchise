@@ -16,7 +16,7 @@
               </el-date-picker>
           </el-col>
           <el-col :span="8">
-              <el-input style='margin-left:2px' :placeholder="search.placeholder" v-model="search.value" @keyup.enter.native="handleSearch"></el-input>
+              <el-input style='margin-left:2px' :placeholder="search.placeholder" v-model="search.value" @keyup.enter.native="handleSearch" clearable></el-input>
           </el-col>
       </el-col>
        <el-col :span="11">
