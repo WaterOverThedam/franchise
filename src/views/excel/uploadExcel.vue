@@ -115,7 +115,17 @@ export default {
         });
         return;
       }
-      let sql=this.json2Sql(this.tableData);
+
+      let sql=this.json2Sql(this.tableData,(obj)=>{
+            let  arr = []
+            self.tableHeader.forEach((h)=>{
+              if(h.indexOf('UNKNOWN')==-1){
+                arr.push("'"+(obj[h]||'')+"' "+h)
+              }
+            })
+            return arr;
+      });
+ 
       sql="with tmp0 as("+sql+"),tmp as(select "+columns.join(",")+" from tmp0)"
       sql=sql+"insert into dbo.TLG_AffiliateInfo("+fields.join(",")+",search,remark)select tmp.*,tmp."+fields.join("+tmp.")+",'Excel 导入'+convert(varchar(20),getdate(),120) from tmp left join TLG_AffiliateInfo A on A.phone=tmp.phone where A.phone is null";
       console.log(sql)

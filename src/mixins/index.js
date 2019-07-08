@@ -72,11 +72,12 @@ export default{
             }
             return arr;
         },
-        json2Sql(data){
+        json2Sql(data,fn){
+             fn=fn||self.obj2Arr;
              var self=this;
              var sql="";
              data.map(function(d){
-                sql += "select "+(typeof d =='object'?self.obj2Arr(d).join(","):"'"+d+"' name")+" union all ";
+                sql += "select "+(typeof d =='object'?fn(d).join(","):"'"+d+"' name")+" union all ";
              })
              return  sql.slice(0,-10);
         },
