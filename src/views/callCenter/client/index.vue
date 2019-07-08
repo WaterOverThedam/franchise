@@ -909,7 +909,7 @@ export default {
               UserEmail:this.client.email,Time:this.client.linktime,
               Channel:this.client.channel,City:this.client.address,
               dt:this.client.dt,followerId:this.client.followerID,
-              wechatName:this.client.wechatName
+              wechatName:this.client.wechatName,Remark:"后台,建入"
           }).then((res) => {
               if(res.code==0){
                   self.dialogClient.visible = false
