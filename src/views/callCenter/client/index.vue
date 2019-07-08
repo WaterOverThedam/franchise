@@ -672,7 +672,7 @@ export default {
       return calendarTypeKeyValue[type]
     },
     empty(val){
-      if(!val.trim()) return "无";
+      if(!(val&&val.trim())) return "无";
       return val;
     }
   },
