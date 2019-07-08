@@ -40,7 +40,7 @@
               <el-button  type="danger" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button>
           </el-col>
           <el-col :span="3">
-              <el-button  v-if="isSuper" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
+              <el-button  v-if="isAdmin" type="danger"  @click="toDelete()">{{$t('table.delete')}}</el-button>
           </el-col>
        </el-col>
       <!-- <el-button  v-show="false" class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
@@ -54,7 +54,7 @@
             <el-col :span="3" v-if="isAdmin">  
               <el-checkbox v-model="unAllocate">仅显示未分配的</el-checkbox>
             </el-col>   
-            <el-col :span="6">  
+            <el-col :span="14">  
               <el-checkbox-group v-model="statusList">
                 <el-checkbox :key="index" :label="index" v-for="(val,index) in handleStatus">{{val}}</el-checkbox>
               </el-checkbox-group>
@@ -628,7 +628,7 @@ export default {
       unAllocate:false,
       selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
-      handleStatus:{"1":"待处理","2":"处理中","3":"已完结"},
+      handleStatus:{"1":"待处理","2":"处理中","3":"已建群","4":"已面谈","5":"已签约","6":"已完结"},
       importanceOptions: [1, 2, 3,4],
       dialogFormVisible: false,
       dialogMemo: {title:"沟通记录",Visiable: false},
