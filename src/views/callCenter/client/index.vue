@@ -1084,13 +1084,17 @@ export default {
       })
     },
     handleDownload() {
+      let self=this;
       this.downloadLoading = true
       fetchList(this,10000).then(response => {
         if(response.code==0&&response.data&&response.data.length>0){
-          this.exportList = response.data;
+          this.exportList = response.data.map((d)=>{
+               d['跟进状态']=self.handleStatus[d.status];
+               return d;
+          });
           import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','来源渠道','最近沟通时间','最近沟通内容','跟进人']
-            const filterVal = ['name', 'phone','email','address', 'dt', 'channel','latestTime','memo','follower']
+            const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','来源渠道','最近沟通时间','最近沟通内容','跟进人','跟进状态']
+            const filterVal = ['name', 'phone','email','address', 'dt', 'channel','latestTime','memo','follower','跟进状态']
             const data = this.formatJson(filterVal, this.exportList);
             const time=this.fmtDt("yyyy-MM-dd-hh:mm:ss")(new Date);
             excel.export_json_to_excel({
