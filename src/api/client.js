@@ -72,7 +72,7 @@ export function updateFollow(data) {
 }
 
 export function updateAssign(cxt) {
-  const option={ids:cxt.selection.ids,FollowerID:cxt.FollowerID};
+  const option={ids:cxt.selection.ids,FollowerID:cxt.followerID};
   return request({
     url: "/api/updateFranApps",
     method: 'post',

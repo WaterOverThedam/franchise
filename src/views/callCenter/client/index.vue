@@ -101,7 +101,7 @@
         </el-table-column>
         <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
         <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
-        <el-table-column  :label="$t('table.status')">
+        <el-table-column  sortable width="100px" prop="status" :label="$t('table.status')">
           <template slot-scope="scope" @click="calling">
               <span v-text="handleStatus[scope.row.status]"></span>
           </template>
