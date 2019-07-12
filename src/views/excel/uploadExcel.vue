@@ -127,7 +127,7 @@ export default {
       });
  
       sql="with tmp0 as("+sql+"),tmp as(select "+columns.join(",")+" from tmp0)"
-      sql=sql+"insert into dbo.TLG_AffiliateInfo("+fields.join(",")+",search,remark)select tmp.*,tmp."+fields.join("+tmp.")+",'Excel 导入'+convert(varchar(20),getdate(),120) from tmp left join TLG_AffiliateInfo A on A.phone=tmp.phone where A.phone is null";
+      sql=sql+"insert into dbo.TLG_AffiliateInfo("+fields.join(",")+",search,remark)select tmp.*,tmp."+fields.join("+tmp.")+",'Excel 导入'+convert(varchar(20),getdate(),120) from tmp left join TLG_AffiliateInfo A on A.phone=tmp.phone and A.isdelete=0 where A.phone is null";
       console.log(sql)
       createClients(sql).then((res)=>{
          if(res.code==0){
