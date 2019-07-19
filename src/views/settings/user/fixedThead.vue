@@ -126,7 +126,10 @@ export default {
         usersFilter(){
           let self=this;
           return this.users.filter((u)=>{
-            return u.id==self.userid||self.isAdmin;
+            return u.isdelete==0
+                  &&(u.id==self.userid
+                  ||(self.isAdmin&&u.username!="test"&&u.username!="admin")
+                  ||self.isSuper);
           })
         },
         userRules(){
