@@ -119,7 +119,7 @@ export default {
       let sql=this.json2Sql(this.tableData,(obj)=>{
             let  arr = []
             self.tableHeader.forEach((h)=>{
-              if(h.indexOf('UNKNOWN')==-1){
+              if(h.indexOf('UNKNOWN')==-1&&h!=""){
                 arr.push("'"+(obj[h]||'')+"' "+h)
               }
             })

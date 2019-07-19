@@ -230,7 +230,7 @@ export const asyncRouterMap = [
   {
     path: '/error-log',
     component: Layout,
-    meta: {roles:['Admin']},
+    meta: {roles:[]},
     redirect: 'noredirect',
     children: [{ path: 'log', component: _import('errorLog/index'), name: 'errorLog', meta: { title: 'errorLog', icon: 'bug' }}]
   },
