@@ -67,7 +67,7 @@
         style="width: 100%">
         <el-table-column v-if="selection.show" type="selection" width="55"></el-table-column>
         <el-table-column fixed type="index" width="50"></el-table-column>
-        <el-table-column fixed sortable width="110px" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
+        <el-table-column fixed sortable width="110px" :sort-method="dtSort" align="center" prop="dt" :label="$t('table.dt')"></el-table-column>
         <el-table-column fixed width="80px" align="center" :label="$t('table.name')">
           <template slot-scope="scope" >
               <a href="#" @click.prevent="toClient('edit',scope.row)">{{scope.row.name}}</a>
@@ -698,6 +698,17 @@ export default {
     isTutors(u){
         return u.isSuper||(u.fullname.indexOf("管理员")==-1&&u.isdelete==0);
     },
+    dtSort(a,b){
+      if(b.CreateTime==a.CreateTime){
+			   if( b.id-a.id>0)  return -1;
+			   if( b.id-a.id==0) return 0;
+         return 1;
+      }else if(b.CreateTime>a.CreateTime){
+        return -1;
+      }else{
+        return 1;
+      }
+    },
     init_input(index){
       let sft=this.sifts[index];
       sft.arr=[];
@@ -726,6 +737,7 @@ export default {
     },
     sortChange(param){
         this.listQuery.sort=param.prop+" "+param.order.substring(0,param.order.indexOf("c")+1);
+        if(this.listQuery.sort&&this.listQuery.sort.trim()) this.listQuery.sort+=","
         this.getList();
     },
     genenateSift:function(){
