@@ -918,7 +918,7 @@ export default {
         if (valid) {
           createClient({
               UserName:this.client.name,UserPhone:this.client.phone,
-              UserEmail:this.client.email,Time:this.client.linktime,
+              UserEmail:this.client.email,linktime:this.client.linktime,
               Channel:this.client.channel,City:this.client.address,
               dt:this.client.dt,followerId:this.client.followerID,
               wechatName:this.client.wechatName,Remark:"后台,建入"
