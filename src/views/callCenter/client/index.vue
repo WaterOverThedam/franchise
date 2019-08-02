@@ -99,6 +99,7 @@
               <span v-else>不确定</span>
           </template>
         </el-table-column>
+        <el-table-column  width="83px" prop="dtMeetUP" :label="$t('table.dtMeetUP')"></el-table-column>
         <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
         <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
         <el-table-column  sortable width="100px" prop="status" :label="$t('table.status')">
@@ -107,8 +108,8 @@
           </template>
         </el-table-column>
         
-        <el-table-column  sortable width="85px" prop="latestTime" :label="$t('table.latestTime')"></el-table-column>
-        <el-table-column  sortable width="85px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
+        <el-table-column  sortable width="83px" prop="latestTime" :label="$t('table.latestTime')"></el-table-column>
+        <el-table-column  sortable width="83px" prop="nextTime" :label="$t('table.nextTime')"></el-table-column>
           
         <el-table-column  width="80px"  fixed="right" align="center" :label="$t('table.memo')">
           <template slot-scope="scope" @click="noting">
@@ -390,6 +391,9 @@
                       </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
+                       <el-form-item label-width="100px" label="面谈时间:" prop="dtMeetUp">
+                         <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtMeetUp" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="nexttimeOptions" style="width: 100%;"></el-date-picker>
+                       </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
@@ -620,7 +624,8 @@ export default {
           linktime:undefined,
           name:undefined,
           dt:undefined,
-          wechatName:undefined
+          wechatName:undefined,
+          dtMeetUP:undefined
       },
       temp:{},
       row_cur:{},
