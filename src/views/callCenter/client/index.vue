@@ -391,8 +391,8 @@
                       </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
-                       <el-form-item label-width="100px" label="面谈时间:" prop="dtMeetUp">
-                         <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtMeetUp" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="nexttimeOptions" style="width: 100%;"></el-date-picker>
+                       <el-form-item label-width="100px" :label="$t('table.dtMeetUP')"  prop="dtMeetUp">
+                         <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtMeetUp" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="dtMeetOptions" style="width: 100%;"></el-date-picker>
                        </el-form-item>
                   </el-col>
                 </el-row>
@@ -551,6 +551,30 @@ export default {
           disabledDate(time) {
             return time.getTime() < Date.now();
           },
+          shortcuts: [{
+            text: '明天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24*1);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '后天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24*2);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '一周后',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            }
+          }]
+      },
+      dtMeetOptions:{
           shortcuts: [{
             text: '明天',
             onClick(picker) {

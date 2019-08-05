@@ -133,7 +133,7 @@ export default {
     sex:'性别',
     phone: '手机号',
     kid: '孩子',
-    dtMeetUP:'面谈时间',
+    dtMeetUP:'面谈日期',
     email: '邮箱',
     addr: '家庭住址',
     memo: '沟通记录',
