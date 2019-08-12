@@ -134,6 +134,7 @@ export default {
     phone: '手机号',
     kid: '孩子',
     dtMeetUp:'面谈日期',
+    dtSign:'签约日期',
     email: '邮箱',
     addr: '家庭住址',
     memo: '沟通记录',

@@ -92,14 +92,8 @@
           </template>
         </el-table-column>
         <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
-        <el-table-column  width="60px" :label="$t('table.linktime')">
-          <template slot-scope="scope" @click="calling">
-              <span v-if="scope.row.linktime==1">上午</span>
-              <span v-else-if="scope.row.linktime==2">下午</span>
-              <span v-else>不确定</span>
-          </template>
-        </el-table-column>
         <el-table-column  width="83px" prop="dtMeetUp" :label="$t('table.dtMeetUp')"></el-table-column>
+        <el-table-column  width="83px" prop="dtSign" :label="$t('table.dtSign')"></el-table-column>
         <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
         <el-table-column  sortable width="90px" prop="follower" :label="$t('table.follower')"></el-table-column>
         <el-table-column  sortable width="100px" prop="status" :label="$t('table.status')">
@@ -391,9 +385,16 @@
                       </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
-                       <el-form-item label-width="100px" :label="$t('table.dtMeetUp')"  prop="dtMeetUp">
-                         <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtMeetUp" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="dtMeetOptions" style="width: 100%;"></el-date-picker>
-                       </el-form-item>
+                      <el-form-item label-width="100px" label="跟进人"  prop="followerID">
+                         <el-select v-model="client.followerID" :disabled="!isSuper"  placeholder="未分配">
+                           <el-option
+                             v-for="item in users"
+                             :key="item.id" v-show="isTutors(item)"
+                             :label="item.fullname"
+                             :value="item.id">
+                           </el-option>
+                         </el-select>
+                      </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
@@ -441,28 +442,14 @@
                 </el-row>
                 <el-row>
                     <el-col :span="10">
-                      <el-form-item  label-width="110px" label="期望联系时间" prop="linktime">
-                         <el-select v-model="client.linktime" placeholder="请选择">
-                           <el-option
-                             v-for="item in [{id:1,name:'上午'},{id:2,name:'下午'}]"
-                             :key="item.id"
-                             :label="item.name"
-                             :value="item.id">
-                           </el-option>
-                         </el-select>
-                      </el-form-item>
+                        <el-form-item label-width="100px" :label="$t('table.dtMeetUp')"  prop="dtMeetUp">
+                          <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtMeetUp" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="dtMeetOptions" style="width: 100%;"></el-date-picker>
+                        </el-form-item>
                     </el-col>
                     <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" label="跟进人"  prop="followerID">
-                         <el-select v-model="client.followerID" :disabled="!isSuper"  placeholder="未分配">
-                           <el-option
-                             v-for="item in users"
-                             :key="item.id" v-show="isTutors(item)"
-                             :label="item.fullname"
-                             :value="item.id">
-                           </el-option>
-                         </el-select>
-                      </el-form-item>
+                        <el-form-item label-width="100px" :label="$t('table.dtSign')"  prop="dtSign">
+                          <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtSign" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="dtMeetOptions" style="width: 100%;"></el-date-picker>
+                        </el-form-item>
                     </el-col>
                 </el-row>
           </el-form>
@@ -645,7 +632,7 @@ export default {
           phone:undefined,
           status:undefined,
           nextTime:undefined,
-          linktime:undefined,
+          dtSign:undefined,
           name:undefined,
           dt:undefined,
           wechatName:undefined,
@@ -681,7 +668,6 @@ export default {
           channel: [{required: true, message: '请输入来源渠道', trigger: 'blur' }],
           phone: [{required: true, message: '请输入手机号', trigger: 'blur' }],
           name: [{required: true, message: '请输入申请人姓名', trigger: 'blur' }],
-          linktime: [{required: true, message: '请输入期望联系时间', trigger: 'blur' }],
           address: [{required: true, message: '请输入申请区域', trigger: 'blur' }],
           dt: [{required: true, message: '请输入申请日期', trigger: 'blur' }]
       },
@@ -913,7 +899,7 @@ export default {
           phone:undefined,
           status:undefined,
           nextTime:undefined,
-          linktime:undefined,
+          dtSign:undefined,
           name:undefined,
           dtMeetUp:undefined,
           dt:undefined
@@ -929,7 +915,6 @@ export default {
       }else{
          this.temp = Object.assign({},row) //原数据备份
          this.client=row;
-         if(row.linktime==0)this.client.linktime=undefined;
          if(row.followerID==0)this.client.followerID=undefined;
          this.dialogClient.title = '编辑';
          this.handleSave=this.handleUpdate;
@@ -948,7 +933,7 @@ export default {
         if (valid) {
           createClient({
               UserName:this.client.name,UserPhone:this.client.phone,
-              UserEmail:this.client.email,linktime:this.client.linktime,
+              UserEmail:this.client.email,dtSign:this.client.dtSign,
               Channel:this.client.channel,City:this.client.address,
               dt:this.client.dt,followerId:this.client.followerID,
               wechatName:this.client.wechatName,Remark:"后台,建入"
