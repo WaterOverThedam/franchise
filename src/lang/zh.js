@@ -151,6 +151,7 @@ export default {
     name:"申请人",
     follower:"跟进人",
     address:"申请区域",
+    amtInvest:"投资金额",
     mark:"标记",
     cate:"分类",
     follow:"跟进设置",

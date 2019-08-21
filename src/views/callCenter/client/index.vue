@@ -92,6 +92,7 @@
           </template>
         </el-table-column>
         <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
+        <el-table-column  sortable width="95px" align="left" prop="amtInvest" :label="$t('table.amtInvest')"></el-table-column>
         <el-table-column  width="83px" prop="dtMeetUp" :label="$t('table.dtMeetUp')"></el-table-column>
         <el-table-column  width="83px" prop="dtSign" :label="$t('table.dtSign')"></el-table-column>
         <el-table-column  width="90px" prop="channel" :label="$t('table.channel')"></el-table-column>
