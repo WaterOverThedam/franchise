@@ -48,7 +48,7 @@ export default {
   components: { UploadExcelComponent },
   data() {
     return {
-      tbModel:[{label:"申请人",key:"name",key_in:undefined},{label:"手机",key:"phone",key_in:undefined},{label:"邮箱",key:"email",key_in:undefined},{label:"申请区域",key:"address",key_in:undefined},{label:"申请日期",key:"createTime",key_in:undefined},{label:"来源渠道",key:"channel",key_in:undefined}],
+      tbModel:[{label:"申请人",key:"name",key_in:undefined},{label:"手机",key:"phone",key_in:undefined},{label:"邮箱",key:"email",key_in:undefined},{label:"申请区域",key:"address",key_in:undefined},{label:"申请日期",key:"createTime",key_in:undefined},{label:"来源渠道",key:"channel",key_in:undefined},{label:"投资金额",key:"amtInvest",key_in:undefined}],
       tableData: [],
       tableHeader: [],
       uploadLoading:false,

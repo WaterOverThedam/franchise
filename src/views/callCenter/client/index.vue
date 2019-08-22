@@ -381,12 +381,12 @@
           <el-form :rules="clientRules" ref="clientForm" :model="client" label-position="center" >
                 <el-row>
                   <el-col :span="10">
-                      <el-form-item label-width="100px" label="微信名:" prop="wechatName">
+                      <el-form-item label-width="100px" :label="$t('table.wechatName')" prop="wechatName">
                         <el-input style='min-width:150px;' v-model="client.wechatName"></el-input>
                       </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" label="跟进人"  prop="followerID">
+                      <el-form-item label-width="100px" :label="$t('table.followerID')"  prop="followerID">
                          <el-select v-model="client.followerID" :disabled="!isSuper"  placeholder="未分配">
                            <el-option
                              v-for="item in users"
@@ -400,36 +400,36 @@
                 </el-row>
                 <el-row>
                   <el-col :span="10">
-                      <el-form-item label-width="100px" label="申请人:" prop="name">
+                      <el-form-item label-width="100px"  :label="$t('table.name')" prop="name">
                         <el-input style='min-width:150px;' v-model="client.name"></el-input>
                       </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
-                      <el-form-item  label-width="100px" label="申请日期:" prop="dt">
+                      <el-form-item  label-width="100px" :label="$t('table.dt')" prop="dt">
                         <el-date-picker type="date" placeholder="选择日期" v-model="client.dt" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="10">
-                      <el-form-item  label-width="100px" label="手机号:" prop="phone">
+                      <el-form-item  label-width="100px" :label="$t('table.phone')" prop="phone">
                             <el-input placeholder="" style='min-width:150px;' v-model="client.phone"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" label="邮箱:"  prop="email">
+                      <el-form-item label-width="100px" :label="$t('table.email')"  prop="email">
                             <el-input   style='min-width:150px;' v-model="client.email"></el-input>
                       </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="10">
-                      <el-form-item  label-width="100px" label="申请区域" prop="address">
+                      <el-form-item  label-width="100px" :label="$t('table.address')" prop="address">
                             <el-input  style='min-width:150px;' v-model="client.address"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" label="来源渠道"  prop="channel">
+                      <el-form-item label-width="100px" :label="$t('table.channel')" prop="channel">
                          <el-select v-model="client.channel" placeholder="请选择">
                            <el-option
                              v-for="item of channels"
@@ -452,6 +452,22 @@
                           <el-date-picker type="datetime" placeholder="选择日期" v-model="client.dtSign" value-format="yyyy-MM-dd HH:mm:ss" :picker-options="dtMeetOptions" style="width: 100%;"></el-date-picker>
                         </el-form-item>
                     </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="10">
+                      <el-form-item label-width="100px"  :label="$t('table.amtInvest')"  prop="amtInvest">
+                         <el-select v-model="client.amtInvest"   placeholder="选择金额">
+                           <el-option
+                             v-for="(item,index) of ['100-150W','150W-200W','200W以上']"
+                             :key="index"  
+                             :label="item"
+                             :value="item">
+                           </el-option>
+                         </el-select>
+                      </el-form-item>
+                  </el-col>
+                  <el-col :offset="1" :span="10">
+                  </el-col>
                 </el-row>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -637,7 +653,8 @@ export default {
           name:undefined,
           dt:undefined,
           wechatName:undefined,
-          dtMeetUp:undefined
+          dtMeetUp:undefined,
+          amtInvest:undefined
       },
       temp:{},
       row_cur:{},
@@ -937,7 +954,8 @@ export default {
               UserEmail:this.client.email,dtSign:this.client.dtSign,
               Channel:this.client.channel,City:this.client.address,
               dt:this.client.dt,followerId:this.client.followerID,
-              wechatName:this.client.wechatName,Remark:"后台,建入"
+              wechatName:this.client.wechatName,Remark:"后台,建入",
+              amtInvest:this.client.amtInvest
           }).then((res) => {
               if(res.code==0){
                   self.dialogClient.visible = false
@@ -1117,12 +1135,12 @@ export default {
       fetchList(this,10000).then(response => {
         if(response.code==0&&response.data&&response.data.length>0){
           this.exportList = response.data.map((d)=>{
-               d['跟进状态']=self.handleStatus[d.status];
+               d['跟进状态']=self.handleStatus[d.status]; //增加一个处理后的字段
                return d;
           });
           import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','来源渠道','最近沟通时间','最近沟通内容','跟进人','跟进状态']
-            const filterVal = ['name', 'phone','email','address', 'dt', 'channel','latestTime','memo','follower','跟进状态']
+            const tHeader = ['申请人', '手机', '邮箱', '申请区域', '申请日期','投资金额','面议日期','签约日期','来源渠道','最近沟通时间','最近沟通内容','跟进人','跟进状态']
+            const filterVal = ['name', 'phone','email','address', 'dt','amtInvest','dtMeetUp','dtSign','channel','latestTime','memo','follower','跟进状态']
             const data = this.formatJson(filterVal, this.exportList);
             const time=this.fmtDt("yyyy-MM-dd-hh:mm:ss")(new Date);
             excel.export_json_to_excel({
