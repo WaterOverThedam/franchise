@@ -82,7 +82,7 @@
           </template>
         </el-table-column>
         <el-table-column  width="100px" align="center" prop="wechatName" :label="$t('table.wechatName')"></el-table-column>
-        <el-table-column  width="50px"  align="center"  :label="$t('table.email')">
+        <!-- <el-table-column  width="50px"  align="center"  :label="$t('table.email')">
           <template slot-scope="scope">
             <el-tooltip  effect="light" :content="scope.row.email|empty" placement="top" >
               <div class="icon-item" @click="toMail(scope.row.emai)">
@@ -90,7 +90,7 @@
               </div>
             </el-tooltip>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column  sortable width="120px" align="left" prop="address" :label="$t('table.address')"></el-table-column>
         <el-table-column  sortable width="95px" align="left" prop="amtInvest" :label="$t('table.amtInvest')"></el-table-column>
         <el-table-column  width="83px" prop="dtMeetUp" :label="$t('table.dtMeetUp')"></el-table-column>
