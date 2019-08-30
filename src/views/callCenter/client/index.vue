@@ -417,8 +417,15 @@
                       </el-form-item>
                     </el-col>
                     <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" :label="$t('table.email')"  prop="email">
-                            <el-input   style='min-width:150px;' v-model="client.email"></el-input>
+                      <el-form-item label-width="100px" :label="$t('table.channel')" prop="channel">
+                         <el-select v-model="client.channel" placeholder="请选择">
+                           <el-option
+                             v-for="item of channels"
+                             :key="item.id" v-show="item.isdelete==0"
+                             :label="item.name"
+                             :value="item.name">
+                           </el-option>
+                         </el-select>
                       </el-form-item>
                     </el-col>
                 </el-row>
@@ -429,13 +436,13 @@
                       </el-form-item>
                     </el-col>
                     <el-col :offset="1" :span="10">
-                      <el-form-item label-width="100px" :label="$t('table.channel')" prop="channel">
-                         <el-select v-model="client.channel" placeholder="请选择">
+                      <el-form-item label-width="100px"  :label="$t('table.amtInvest')"  prop="amtInvest">
+                         <el-select v-model="client.amtInvest"   placeholder="选择金额">
                            <el-option
-                             v-for="item of channels"
-                             :key="item.id" v-show="item.isdelete==0"
-                             :label="item.name"
-                             :value="item.name">
+                             v-for="(item,index) of ['100-150W','150W-200W','200W以上']"
+                             :key="index"  
+                             :label="item"
+                             :value="item">
                            </el-option>
                          </el-select>
                       </el-form-item>
@@ -455,16 +462,6 @@
                 </el-row>
                 <el-row>
                   <el-col :span="10">
-                      <el-form-item label-width="100px"  :label="$t('table.amtInvest')"  prop="amtInvest">
-                         <el-select v-model="client.amtInvest"   placeholder="选择金额">
-                           <el-option
-                             v-for="(item,index) of ['100-150W','150W-200W','200W以上']"
-                             :key="index"  
-                             :label="item"
-                             :value="item">
-                           </el-option>
-                         </el-select>
-                      </el-form-item>
                   </el-col>
                   <el-col :offset="1" :span="10">
                   </el-col>
@@ -920,7 +917,8 @@ export default {
           dtSign:undefined,
           name:undefined,
           dtMeetUp:undefined,
-          dt:undefined
+          dt:undefined,
+          amtInvest:undefined
       }
     },
     toClient(type,row) {
