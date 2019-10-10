@@ -365,6 +365,16 @@
                         </el-option>
                     </el-select>
                </template> 
+               <template v-else-if="sift.item.type&&sift.item.type=='amtInvest'">
+                    <el-select v-model="sift.arr"  multiple style="width:120%">
+                        <el-option
+                          v-for="(item,key,index) in amtInvestOpts"
+                          :key="index"
+                          :label="item"
+                          :value="item">
+                        </el-option>
+                    </el-select>
+               </template> 
                <template v-else>
                     <el-input type="text" v-model="sift.value" placeholder="值"></el-input>
                </template>
@@ -439,7 +449,7 @@
                       <el-form-item label-width="100px"  :label="$t('table.amtInvest')"  prop="amtInvest">
                          <el-select v-model="client.amtInvest"   placeholder="选择金额">
                            <el-option
-                             v-for="(item,index) of ['100-150W','150W-200W','200W以上']"
+                             v-for="(item,index) of amtInvestOpts"
                              :key="index"  
                              :label="item"
                              :value="item">
@@ -514,6 +524,7 @@ export default {
       }  
     };
     return {
+      amtInvestOpts: ['100-150W','150W-200W','200W以上'],
       tutorTags: [],
       statusList: [],
       tag:{inputVisible: false,inputValue: '',tipList:[]},
@@ -528,7 +539,7 @@ export default {
                 {label:"大于等于",key:">='@val'",type:"number"},{label:"小于等于",key:"<='@val'",type:"number"},
                 {label:"大于",key:">'@val'",type:"number"},{label:"小于",key:"<'@val'",type:"number"},
                 {label:"范围内",key:"between '@val1' and '@val2'",type:"dt"},{label:"范围外",key:"not between '@val1' and '@val2'",type:"dt"},
-                {label:"属于",key:"in (@val)",type:"channel,follower,status"},{label:"不属于",key:"not in (@val)",type:"channel,follower,status"},
+                {label:"属于",key:"in (@val)",type:"channel,follower,status,amtInvest"},{label:"不属于",key:"not in (@val)",type:"channel,follower,status,amtInvest"},
                 {label:"属于",key:"in (select f.FranAppId from TLG_Labels l join TLG_LabelForFraApp f on l.name in (@val) and l.id=f.labelId)",type:"label"} 
             ],
       color:[
@@ -714,6 +725,8 @@ export default {
                 {label:"申请区域",key:"address",type:"string",show:true},
                 {label:"最后沟通时间",key:"latestTime",type:"dt",show:true},
                 {label:"跟进人",key:"followerID",type:"follower",show:this.isAdmin},
+                {label:"微信名",key:"wechatName",type:"string",show:true},
+                {label:"投资额",key:"amtInvest",type:"amtInvest",show:true},
                // {label:"跟进状态",key:"status",type:"status",show:true}
               ]
      },
