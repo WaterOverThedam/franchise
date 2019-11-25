@@ -670,7 +670,7 @@ export default {
       unAllocate:false,
       selection:{show:false,ids:[]},
       search:{placeholder:"搜索关键字:手机号/姓名等",value:""},
-      handleStatus:{"1":"待处理","2":"处理中","3":"已建群","4":"已面谈","5":"已签约","6":"已完结"},
+      handleStatus:{"1":"待处理","2":"处理中","3":"已建群","4":"已面谈","5":"已签约","6":"有效建群"},
       importanceOptions: [1, 2, 3,4],
       dialogFormVisible: false,
       dialogMemo: {title:"沟通记录",Visiable: false},
